@@ -1,0 +1,31 @@
+parameters:
+  openai.model: '%env(default:OPENAI_MODEL:OPENAI_MODEL)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/Kernel.php'
+
+  App\AI\Client\LlmClientInterface: '@App\AI\Client\OpenAiLlmClient'
+
+  App\AI\Client\OpenAiLlmClient:
+    arguments:
+      $client: '@openai.client'
+      $apiKey: '%env(string:OPENAI_API_KEY)%'
+      $model: '%env(string:OPENAI_MODEL)%'
+
+  App\Document\Parser\PdfTextExtractor: ~
+  App\Document\Parser\DocxTextExtractor: ~
+  App\Document\Parser\PlainTextExtractor: ~
+
+  App\Document\Service\DocumentTextExtractor:
+    arguments:
+      $extractors:
+        - '@App\Document\Parser\PdfTextExtractor'
+        - '@App\Document\Parser\DocxTextExtractor'
+        - '@App\Document\Parser\PlainTextExtractor'

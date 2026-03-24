@@ -1,0 +1,7 @@
+framework:
+  http_client:
+    scoped_clients:
+      openai.client:
+        base_uri: 'https://api.openai.com/'
+        headers:
+          Content-Type: 'application/json'
