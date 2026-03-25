@@ -61,8 +61,8 @@ final class PdfTextExtractor implements DocumentTextExtractorInterface
         $chunks = [];
 
         foreach ($matches[1] as $match) {
-            $decoded = preg_replace('/\\([nrtbf()\\\\])/', ' $1 ', $match);
-            $decoded = preg_replace('/\\[0-7]{1,3}/', ' ', (string) $decoded);
+            $decoded = preg_replace('/\\\\([nrtbf()\\\\])/', ' $1 ', $match);
+            $decoded = preg_replace('/\\\\[0-7]{1,3}/', ' ', (string) $decoded);
             $decoded = preg_replace('/[^\PC\s]/u', ' ', (string) $decoded);
             $decoded = trim((string) $decoded);
 

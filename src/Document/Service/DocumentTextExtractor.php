@@ -5,10 +5,11 @@ namespace App\Document\Service;
 use App\Document\DTO\DocumentContentDto;
 use App\Document\Enum\DocumentTypeEnum;
 use App\Document\Parser\DocumentTextExtractorInterface;
+use App\Shared\Document\ContractDocumentTextExtractorInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final readonly class DocumentTextExtractor
+final readonly class DocumentTextExtractor implements ContractDocumentTextExtractorInterface
 {
     private const int MAX_TEXT_LENGTH = 50000;
 

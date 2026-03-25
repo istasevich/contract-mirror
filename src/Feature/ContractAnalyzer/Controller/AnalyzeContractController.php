@@ -1,59 +1,53 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Feature\ContractAnalyzer\Controller;
 
 use App\Document\Service\DocumentUploadValidator;
-use App\Feature\ContractAnalyzer\DTO\AnalyzeContractCommand;
-use App\Feature\ContractAnalyzer\Response\AnalyzeContractResponseFactory;
+use App\Feature\ContractAnalyzer\Request\AnalyzeContractRequest;
 use App\Feature\ContractAnalyzer\Service\AnalyzeContractService;
-use App\Shared\Exception\InvalidArgumentException;
-use Throwable;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
-final readonly class AnalyzeContractController
+final class AnalyzeContractController extends AbstractController
 {
     public function __construct(
-        protected AnalyzeContractService $service,
-        protected AnalyzeContractResponseFactory $responseFactory,
+        protected AnalyzeContractService $analyzeContractService,
         protected DocumentUploadValidator $documentUploadValidator,
     ) {
         // Nothing
     }
 
-    #[Route('/api/contracts/analyze', name: 'api_contracts_analyze', methods: ['POST'])]
+    #[Route('/api/contracts/analyze', name: 'app_contract_analyze', methods: ['POST'])]
     public function __invoke(Request $request): JsonResponse
     {
         try {
-            $file = $this->documentUploadValidator->validate($request->files->get('file'));
+            $input = AnalyzeContractRequest::fromRequest($request);
 
-            $command = new AnalyzeContractCommand(
-                file: $file,
-                preferredLanguage: (string) $request->request->get('preferredLanguage', 'en'),
-            );
+            $this->documentUploadValidator->validate($input->file);
 
-            $report = $this->service->run($command);
+            $report = $this->analyzeContractService->handle($input);
 
-            return $this->responseFactory->create($report);
-        } catch (InvalidArgumentException $exception) {
-            return new JsonResponse([
-                'message' => $exception->getMessage(),
-            ], 422);
+            return $this->json([
+                'success' => true,
+                'html' => $this->renderView('contract/_report.html.twig', [
+                    'report' => $report,
+                ]),
+                'reportTitle' => $report->documentName ?: 'Contract analysis report',
+                'reportSubtitle' => 'Review the verdict, risks, and suggested fixes.',
+                'riskScore' => $report->riskScore,
+                'overallRisk' => $report->overallRisk,
+            ], Response::HTTP_OK);
         } catch (Throwable $exception) {
-            return new JsonResponse([
-                'message' => 'Unable to analyze the contract right now. Please try again.',
-                'details' => $request->query->getBoolean('debug') ? $exception->getMessage() : null,
-            ], 500);
+            return $this->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-    }
-
-    #[Route('/health', name: 'health', methods: ['GET'])]
-    public function health(): JsonResponse
-    {
-        return new JsonResponse([
-            'status' => 'ok',
-            'service' => 'contractmirror',
-        ]);
     }
 }

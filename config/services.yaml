@@ -11,7 +11,7 @@ services:
     exclude:
       - '../src/Kernel.php'
 
-  App\AI\Client\LlmClientInterface: '@App\AI\Client\OpenAiLlmClient'
+  App\Shared\AI\LlmClientInterface: '@App\AI\Client\OpenAiLlmClient'
 
   App\AI\Client\OpenAiLlmClient:
     arguments:

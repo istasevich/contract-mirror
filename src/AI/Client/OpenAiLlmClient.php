@@ -1,94 +1,105 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\AI\Client;
 
-use JsonException;
+use App\Shared\AI\LlmClientInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class OpenAiLlmClient implements LlmClientInterface
+final class OpenAiLlmClient implements LlmClientInterface
 {
     public function __construct(
         protected HttpClientInterface $client,
+        protected LoggerInterface $logger,
         protected string $apiKey,
-        protected string $model,
+        protected string $model = 'gpt-4.1-mini',
     ) {
         // Nothing
     }
 
-    public function generateJson(string $prompt): array
+    public function generateStructured(string $prompt): array
     {
-        if ($this->apiKey === '') {
-            throw new RuntimeException('OPENAI_API_KEY is not configured.');
-        }
+        $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'model' => $this->model,
+                'response_format' => ['type' => 'json_object'],
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are a precise contract analysis assistant. Return valid JSON only.',
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $prompt,
+                    ],
+                ],
+                'temperature' => 0.2,
+            ],
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        $rawBody = $response->getContent(false);
+
+        $this->logger->info('OpenAI raw response received.', [
+            'status_code' => $statusCode,
+            'raw_body' => $rawBody,
+        ]);
 
         try {
-            $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'timeout' => 90,
-                'json' => [
-                    'model' => $this->model,
-                    'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => 'Return valid JSON only. Do not wrap JSON in markdown.',
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => $prompt,
-                        ],
-                    ],
-                    'response_format' => [
-                        'type' => 'json_object',
-                    ],
-                    'temperature' => 0.2,
-                ],
+            $payload = json_decode($rawBody, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            $this->logger->error('Failed to decode OpenAI raw HTTP response.', [
+                'raw_body' => $rawBody,
+                'exception' => $exception->getMessage(),
             ]);
 
-            $statusCode = $response->getStatusCode();
-            $payload = $response->toArray(false);
-        } catch (ExceptionInterface $exception) {
-            throw new RuntimeException('OpenAI request failed: '.$exception->getMessage(), previous: $exception);
+            throw new RuntimeException('Failed to decode OpenAI HTTP response.', 0, $exception);
         }
 
-        if ($statusCode >= 400) {
-            $message = is_array($payload['error'] ?? null)
-                ? (string) ($payload['error']['message'] ?? 'Unknown OpenAI error.')
-                : 'Unknown OpenAI error.';
+        $content = $payload['choices'][0]['message']['content'] ?? null;
 
-            throw new RuntimeException(sprintf('OpenAI API error (%d): %s', $statusCode, $message));
+        if (!is_string($content) || trim($content) === '') {
+            $this->logger->error('Empty or invalid OpenAI response payload.', [
+                'payload' => $payload,
+            ]);
+
+            throw new RuntimeException('Empty or invalid OpenAI response payload.');
         }
 
-        $text = $payload['choices'][0]['message']['content'] ?? null;
-
-        if (!is_string($text) || trim($text) === '') {
-            throw new RuntimeException('OpenAI returned an empty response payload.');
-        }
-
-        $text = $this->normalizeJsonText($text);
+        $this->logger->info('OpenAI content extracted.', [
+            'content' => $content,
+        ]);
 
         try {
-            /** @var array<string, mixed> $decoded */
-            $decoded = json_decode($text, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new RuntimeException('Failed to decode JSON returned by OpenAI.', previous: $exception);
+            $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            $this->logger->error('Failed to decode model JSON response.', [
+                'content' => $content,
+                'exception' => $exception->getMessage(),
+            ]);
+
+            throw new RuntimeException('Failed to decode model JSON response.', 0, $exception);
         }
+
+        if (!is_array($decoded)) {
+            $this->logger->error('Model returned non-object JSON.', [
+                'decoded' => $decoded,
+            ]);
+
+            throw new RuntimeException('Model returned non-object JSON.');
+        }
+
+        $this->logger->info('OpenAI structured response decoded successfully.', [
+            'decoded' => $decoded,
+        ]);
 
         return $decoded;
-    }
-
-    private function normalizeJsonText(string $text): string
-    {
-        $text = trim($text);
-
-        if (str_starts_with($text, '```')) {
-            $text = preg_replace('/^```(?:json)?\s*|\s*```$/', '', $text) ?? $text;
-        }
-
-        return trim($text);
     }
 }
