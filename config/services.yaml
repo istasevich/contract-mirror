@@ -11,6 +11,20 @@ services:
     exclude:
       - '../src/Kernel.php'
 
+  App\Feature\Payment\Service\CreateReportPaymentService:
+      arguments:
+          $walletAddress: '%env(CRYPTO_WALLET_ADDRESS)%'
+
+  monolog.logger.openai:
+      class: Psr\Log\LoggerInterface
+      factory: [ '@monolog.logger', 'get' ]
+      arguments: [ 'openai' ]
+
+  monolog.logger.contract_analyzer:
+      class: Psr\Log\LoggerInterface
+      factory: [ '@monolog.logger', 'get' ]
+      arguments: [ 'contract_analyzer' ]
+
   App\Shared\AI\LlmClientInterface: '@App\AI\Client\OpenAiLlmClient'
 
   App\AI\Client\OpenAiLlmClient:
@@ -18,6 +32,7 @@ services:
       $client: '@openai.client'
       $apiKey: '%env(string:OPENAI_API_KEY)%'
       $model: '%env(string:OPENAI_MODEL)%'
+      $logger: '@monolog.logger.openai'
 
   App\Document\Parser\PdfTextExtractor: ~
   App\Document\Parser\DocxTextExtractor: ~

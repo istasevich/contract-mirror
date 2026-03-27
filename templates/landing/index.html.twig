@@ -318,6 +318,54 @@
                 <div id="report-content" class="hidden py-8"></div>
             </div>
         </div>
+        <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
+
+                <h2 class="text-xl font-bold text-white mb-4">
+                    🔓 Unlock full report
+                </h2>
+
+                <p class="text-slate-400 mb-4">
+                    Pay <strong>$9 in USDT (TRC20)</strong> to unlock:
+                </p>
+
+                <ul class="text-sm text-slate-300 mb-6 space-y-1">
+                    <li>• Full clause breakdown</li>
+                    <li>• Safer wording</li>
+                    <li>• Missing protections</li>
+                    <li>• PDF export</li>
+                </ul>
+
+                <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
+                    TXYZ123456789YOURADDRESS
+                </div>
+
+                <p class="text-xs text-slate-500 mt-2 text-center">
+                    Network: TRC20
+                </p>
+
+                <input
+                    id="tx-hash-input"
+                    type="text"
+                    placeholder="Paste transaction hash"
+                    class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
+                />
+
+                <button
+                    id="submit-payment"
+                    class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
+                >
+                    Submit payment
+                </button>
+
+                <button
+                    onclick="closePaymentModal()"
+                    class="mt-2 w-full text-sm text-slate-400"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
     </section>
 </main>
 

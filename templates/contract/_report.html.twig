@@ -1,106 +1,107 @@
+<div class="flex flex-col gap-6">
 
-<div class="space-y-8">
-    {% include 'contract/_report_header.html.twig' with { report: report } %}
+    {% include 'contract/_report_header.html.twig' %}
+    {% include 'contract/_report_summary.html.twig' %}
 
-    <div class="js-report-simple space-y-8">
-        {% include 'contract/_report_summary.html.twig' with { report: report } %}
-
-        <section>
-            <div class="mb-4 flex items-center justify-between gap-4">
-                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Top risks</h3>
-                {% if report.issues is not empty %}
-                    <span class="text-sm text-slate-500">{{ report.issues|length }} issue(s)</span>
-                {% endif %}
-            </div>
-
-            {% if report.issues is empty %}
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-slate-300">
-                    No material risks were detected in the current document.
-                </div>
-            {% else %}
-                <div class="grid gap-4 lg:grid-cols-2">
-                    {% for issue in report.issues|slice(0, 4) %}
-                        <article class="rounded-[28px] border border-white/10 bg-white/5 p-5">
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <div class="mb-2 flex flex-wrap gap-2">
-                                        <span class="rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.18em]
-                                            {% if issue.severity == 'HIGH' %}border-red-400/20 bg-red-500/10 text-red-200
-                                            {% elseif issue.severity == 'LOW' %}border-emerald-400/20 bg-emerald-500/10 text-emerald-200
-                                            {% else %}border-amber-400/20 bg-amber-500/10 text-amber-200{% endif %}">
-                                            {{ issue.severity }}
-                                        </span>
-                                        <span class="rounded-full border border-white/10 bg-slate-950/40 px-3 py-1 text-xs text-slate-300">{{ issue.category }}</span>
-                                    </div>
-                                    <h4 class="text-lg font-bold text-white">{{ issue.title }}</h4>
-                                </div>
-                            </div>
-
-                            <p class="mt-4 text-sm text-slate-200">{{ issue.plainExplanation }}</p>
-                            <div class="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
-                                <div class="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">Why it matters</div>
-                                <p class="mt-2 text-sm text-slate-100">{{ issue.whyItMatters }}</p>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
-
-        <section>
-            <div class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Missing protections</div>
-
-            {% if report.missingProtections is empty %}
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-slate-300">
-                    No major missing protections were detected.
-                </div>
-            {% else %}
-                <div class="grid gap-4 lg:grid-cols-2">
-                    {% for protection in report.missingProtections|slice(0, 2) %}
-                        {% include 'contract/_report_missing_protection_card.html.twig' with { protection: protection } %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
+    {# FREE PART — первые 2 issue #}
+    <div class="flex flex-col gap-4">
+        {% for issue in report.issues|slice(0, 2) %}
+            {% include 'contract/_report_issue_card.html.twig' %}
+        {% endfor %}
     </div>
 
-    <div class="js-report-detailed hidden space-y-6">
-        <section>
-            <div class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Clause analysis</div>
+    {# LOCKED PART #}
+    {% if isLocked %}
+        <div class="relative mt-6">
 
-            {% if report.issues is empty %}
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-slate-300">
-                    No clause-level issues found.
-                </div>
-            {% else %}
-                <div class="space-y-5">
-                    {% for issue in report.issues %}
-                        {% include 'contract/_report_issue_card.html.twig' with { issue: issue } %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
+            <div class="blur-sm pointer-events-none opacity-60">
+                {% for issue in report.issues|slice(2) %}
+                    {% include 'contract/_report_issue_card.html.twig' %}
+                {% endfor %}
 
-        <section>
-            <div class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Missing protections</div>
+                {% for item in report.missingProtections %}
+                    {% include 'contract/_report_missing_protection_card.html.twig' %}
+                {% endfor %}
+            </div>
 
-            {% if report.missingProtections is empty %}
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-slate-300">
-                    No major missing protections were detected.
-                </div>
-            {% else %}
-                <div class="space-y-5">
-                    {% for protection in report.missingProtections %}
-                        {% include 'contract/_report_missing_protection_card.html.twig' with { protection: protection } %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
+            {# PAYWALL #}
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 text-center max-w-md">
 
-        <section class="rounded-[28px] border border-white/10 bg-white/5 p-6">
-            <div class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Final recommendation</div>
-            <div class="mt-4 text-xl font-bold text-white">{{ report.finalRecommendation }}</div>
-            <p class="mt-3 text-slate-300">{{ report.signingRecommendation }}</p>
-        </section>
+                    <div class="text-xl font-bold text-white mb-2">
+                        🔓 Unlock full report
+                    </div>
+
+                    <div class="text-sm text-slate-400 mb-4">
+                        See all risks, safer wording and export PDF
+                    </div>
+
+                    <button
+                        onclick="openPaymentModal()"
+                        class="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 rounded-xl font-bold"
+                    >
+                        Unlock for {{ payment.amount }} {{ payment.currency }}
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {# FULL ACCESS #}
+        <div class="flex flex-col gap-4 mt-6">
+            {% for issue in report.issues|slice(2) %}
+                {% include 'contract/_report_issue_card.html.twig' %}
+            {% endfor %}
+
+            {% for item in report.missingProtections %}
+                {% include 'contract/_report_missing_protection_card.html.twig' %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+
+{# PAYMENT MODAL #}
+<div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+
+    <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
+
+        <h2 class="text-xl font-bold text-white mb-4">
+            🔓 Unlock full report
+        </h2>
+
+        <p class="text-slate-400 mb-4">
+            Send <strong>{{ payment.amount }} {{ payment.currency }}</strong>
+        </p>
+
+        <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
+            {{ payment.address }}
+        </div>
+
+        <p class="text-xs text-slate-500 mt-2 text-center">
+            Network: TRC20
+        </p>
+
+        <input
+            id="tx-hash-input"
+            type="text"
+            placeholder="Paste transaction hash"
+            class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
+        />
+
+        <button
+            onclick="submitPayment()"
+            class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
+        >
+            Submit payment
+        </button>
+
+        <button
+            onclick="closePaymentModal()"
+            class="mt-2 w-full text-sm text-slate-400"
+        >
+            Cancel
+        </button>
+
     </div>
 </div>

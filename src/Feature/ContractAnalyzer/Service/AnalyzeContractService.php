@@ -9,6 +9,7 @@ use App\Feature\ContractAnalyzer\Mapper\ContractAnalysisViewMapper;
 use App\Feature\ContractAnalyzer\Request\AnalyzeContractRequest;
 use App\Feature\ContractAnalyzer\Prompt\AnalyzeContractPromptFactory;
 use App\Feature\ContractAnalyzer\Support\ContractAnalysisPayloadNormalizer;
+use App\Feature\ContractAnalyzer\Support\FakeContractReportFactory;
 use App\Shared\AI\LlmClientInterface;
 use App\Shared\Document\ContractDocumentTextExtractorInterface;
 use RuntimeException;
@@ -20,6 +21,7 @@ final class AnalyzeContractService
     public function __construct(
         protected ContractDocumentTextExtractorInterface $documentTextExtractor,
         protected AnalyzeContractPromptFactory $promptFactory,
+        protected FakeContractReportFactory $fakeContractReportFactory,
         protected LlmClientInterface $llmClient,
         protected ContractAnalysisPayloadNormalizer $payloadNormalizer,
         protected ContractAnalysisViewMapper $viewMapper,
@@ -29,6 +31,10 @@ final class AnalyzeContractService
 
     public function handle(AnalyzeContractRequest $request): ContractAnalysisReportViewDto
     {
+        if ($_ENV['CONTRACT_MIRROR_FAKE_REPORT'] ?? false) {
+            return $this->fakeContractReportFactory->make();
+        }
+
         if ($request->file === null) {
             throw new RuntimeException('Contract file is required.');
         }

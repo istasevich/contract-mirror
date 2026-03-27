@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(payload.message || 'Failed to analyze the contract.');
             }
 
+            window.currentPaymentId = payload.payment.paymentId;
+            window.currentReportId = payload.publicId;
+
             reportTitle.textContent = payload.reportTitle || 'Contract analysis report';
             reportSubtitle.textContent = payload.reportSubtitle || 'Review the result below.';
             reportContent.innerHTML = payload.html || '';
@@ -140,6 +143,57 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             submitButton.disabled = false;
             submitButton.textContent = 'Analyze contract';
+        }
+
+        async function pollPaymentStatus() {
+            let attempts = 0;
+
+            const interval = setInterval(async () => {
+                attempts++;
+
+                const res = await fetch(`/api/payments/${window.currentPaymentId}/status`);
+                const data = await res.json();
+
+                if (data.status === 'confirmed') {
+                    clearInterval(interval);
+                    location.reload();
+                }
+
+                if (attempts > 12) {
+                    clearInterval(interval);
+                    alert('Still verifying. Try refresh later.');
+                }
+            }, 7000);
+        }
+
+        function openPaymentModal() {
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        async function submitPayment() {
+            const txHash = document.getElementById('tx-hash-input').value;
+
+            if (!txHash) {
+                alert('Enter transaction hash');
+                return;
+            }
+
+            const response = await fetch(`/api/payments/${window.currentPaymentId}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ txHash })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Payment submitted, verifying...');
+                pollPaymentStatus();
+            }
         }
     });
 });

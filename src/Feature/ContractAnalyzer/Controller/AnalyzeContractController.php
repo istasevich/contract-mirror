@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Feature\ContractAnalyzer\Controller;
 
 use App\Document\Service\DocumentUploadValidator;
+use App\Feature\ContractAnalyzer\Action\ProcessContractReportAction;
 use App\Feature\ContractAnalyzer\Request\AnalyzeContractRequest;
-use App\Feature\ContractAnalyzer\Service\AnalyzeContractService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ use Throwable;
 final class AnalyzeContractController extends AbstractController
 {
     public function __construct(
-        protected AnalyzeContractService $analyzeContractService,
+        protected ProcessContractReportAction $processContractReportAction,
         protected DocumentUploadValidator $documentUploadValidator,
     ) {
         // Nothing
@@ -31,17 +31,21 @@ final class AnalyzeContractController extends AbstractController
 
             $this->documentUploadValidator->validate($input->file);
 
-            $report = $this->analyzeContractService->handle($input);
+            $result = $this->processContractReportAction->execute($input);
 
             return $this->json([
                 'success' => true,
-                'html' => $this->renderView('contract/_report.html.twig', [
-                    'report' => $report,
-                ]),
-                'reportTitle' => $report->documentName ?: 'Contract analysis report',
-                'reportSubtitle' => 'Review the verdict, risks, and suggested fixes.',
-                'riskScore' => $report->riskScore,
-                'overallRisk' => $report->overallRisk,
+                'html' => $result->html,
+                'publicId' => $result->publicId,
+                'isLocked' => $result->isLocked,
+                'reportTitle' => $result->reportTitle,
+                'reportSubtitle' => $result->reportSubtitle,
+                'payment' => [
+                    'paymentId' => $result->paymentId,
+                    'address' => $result->paymentAddress,
+                    'amount' => $result->paymentAmount,
+                    'currency' => $result->paymentCurrency,
+                ],
             ], Response::HTTP_OK);
         } catch (Throwable $exception) {
             return $this->json([

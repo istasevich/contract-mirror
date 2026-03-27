@@ -8,9 +8,15 @@ RUN apk add --no-cache \
     icu-dev \
     libzip-dev \
     oniguruma-dev \
+    postgresql-dev \
     poppler-utils \
     $PHPIZE_DEPS \
-    && docker-php-ext-install intl zip opcache \
+    && docker-php-ext-install \
+        intl \
+        zip \
+        opcache \
+        pdo \
+        pdo_pgsql \
     && apk del $PHPIZE_DEPS
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
