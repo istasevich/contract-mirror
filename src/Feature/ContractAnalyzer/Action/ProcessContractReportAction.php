@@ -42,9 +42,17 @@ final class ProcessContractReportAction
             language: $request->preferredLanguage,
         );
 
+        $payment = $this->createReportPaymentService->handle($storedReport);
+
         $html = $this->twig->render('contract/_report.html.twig', [
             'report' => $reportView,
             'isLocked' => true,
+            'payment' => [
+                'paymentId' => $payment->getId(),
+                'address' => $payment->getWalletAddress(),
+                'amount' => $payment->getExpectedAmount(),
+                'currency' => $payment->getCurrency(),
+            ],
         ]);
 
         $this->finalizeContractReportService->handle(
@@ -54,8 +62,6 @@ final class ProcessContractReportAction
             reportPayload: $this->buildReportPayload($reportView),
             reportHtml: $html,
         );
-
-        $payment = $this->createReportPaymentService->handle($storedReport);
 
         return new ProcessContractReportResultDto(
             publicId: $storedReport->getPublicId(),

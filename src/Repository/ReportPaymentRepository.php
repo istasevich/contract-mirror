@@ -23,4 +23,10 @@ final class ReportPaymentRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+
+    public function findOneById(string $id): ?ReportPayment
+    {
+        return $this->find($id);
+    }
 }

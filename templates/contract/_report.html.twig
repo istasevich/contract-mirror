@@ -3,31 +3,28 @@
     {% include 'contract/_report_header.html.twig' %}
     {% include 'contract/_report_summary.html.twig' %}
 
-    {# FREE PART — первые 2 issue #}
     <div class="flex flex-col gap-4">
         {% for issue in report.issues|slice(0, 2) %}
             {% include 'contract/_report_issue_card.html.twig' %}
         {% endfor %}
     </div>
 
-    {# LOCKED PART #}
     {% if isLocked %}
         <div class="relative mt-6">
-
             <div class="blur-sm pointer-events-none opacity-60">
                 {% for issue in report.issues|slice(2) %}
                     {% include 'contract/_report_issue_card.html.twig' %}
                 {% endfor %}
 
                 {% for item in report.missingProtections %}
-                    {% include 'contract/_report_missing_protection_card.html.twig' %}
+                    {% include 'contract/_report_missing_protection_card.html.twig' with {
+                        protection: item
+                    } %}
                 {% endfor %}
             </div>
 
-            {# PAYWALL #}
             <div class="absolute inset-0 flex items-center justify-center">
                 <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 text-center max-w-md">
-
                     <div class="text-xl font-bold text-white mb-2">
                         🔓 Unlock full report
                     </div>
@@ -36,72 +33,76 @@
                         See all risks, safer wording and export PDF
                     </div>
 
-                    <button
-                        onclick="openPaymentModal()"
-                        class="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 rounded-xl font-bold"
-                    >
-                        Unlock for {{ payment.amount }} {{ payment.currency }}
-                    </button>
-
+                    {% if payment %}
+                        <button
+                            onclick="openPaymentModal()"
+                            class="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 rounded-xl font-bold"
+                        >
+                            Unlock for {{ payment.amount }} {{ payment.currency }}
+                        </button>
+                    {% else %}
+                        <div class="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                            Payment is unavailable right now. Please refresh the page.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     {% else %}
-        {# FULL ACCESS #}
         <div class="flex flex-col gap-4 mt-6">
             {% for issue in report.issues|slice(2) %}
                 {% include 'contract/_report_issue_card.html.twig' %}
             {% endfor %}
 
             {% for item in report.missingProtections %}
-                {% include 'contract/_report_missing_protection_card.html.twig' %}
+                {% include 'contract/_report_missing_protection_card.html.twig' with {
+                    protection: item
+                } %}
             {% endfor %}
         </div>
     {% endif %}
 
 </div>
 
-{# PAYMENT MODAL #}
-<div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+{% if isLocked and payment %}
+    <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
+            <h2 class="text-xl font-bold text-white mb-4">
+                🔓 Unlock full report
+            </h2>
 
-    <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
+            <p class="text-slate-400 mb-4">
+                Send <strong>{{ payment.amount }} {{ payment.currency }}</strong>
+            </p>
 
-        <h2 class="text-xl font-bold text-white mb-4">
-            🔓 Unlock full report
-        </h2>
+            <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
+                {{ payment.address }}
+            </div>
 
-        <p class="text-slate-400 mb-4">
-            Send <strong>{{ payment.amount }} {{ payment.currency }}</strong>
-        </p>
+            <p class="text-xs text-slate-500 mt-2 text-center">
+                Network: TRC20
+            </p>
 
-        <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
-            {{ payment.address }}
+            <input
+                id="tx-hash-input"
+                type="text"
+                placeholder="Paste transaction hash"
+                class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
+            />
+
+            <button
+                onclick="submitPayment()"
+                class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
+            >
+                Submit payment
+            </button>
+
+            <button
+                onclick="closePaymentModal()"
+                class="mt-2 w-full text-sm text-slate-400"
+            >
+                Cancel
+            </button>
         </div>
-
-        <p class="text-xs text-slate-500 mt-2 text-center">
-            Network: TRC20
-        </p>
-
-        <input
-            id="tx-hash-input"
-            type="text"
-            placeholder="Paste transaction hash"
-            class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
-        />
-
-        <button
-            onclick="submitPayment()"
-            class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
-        >
-            Submit payment
-        </button>
-
-        <button
-            onclick="closePaymentModal()"
-            class="mt-2 w-full text-sm text-slate-400"
-        >
-            Cancel
-        </button>
-
     </div>
-</div>
+{% endif %}

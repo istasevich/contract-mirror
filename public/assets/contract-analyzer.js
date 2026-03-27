@@ -1,3 +1,77 @@
+function openPaymentModal() {
+    document.getElementById('payment-modal')?.classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('payment-modal')?.classList.add('hidden');
+}
+
+async function submitPayment() {
+    const input = document.getElementById('tx-hash-input');
+    const txHash = input ? input.value.trim() : '';
+
+    if (!txHash) {
+        alert('Enter transaction hash');
+        return;
+    }
+
+    if (!window.currentPaymentId) {
+        alert('Payment not initialized. Please reload the page.');
+        return;
+    }
+
+    const response = await fetch(`/api/payments/${window.currentPaymentId}/submit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ txHash }),
+    });
+
+    const payload = await response.json();
+
+    if (!payload.success) {
+        alert(payload.message || 'Failed to submit payment.');
+        return;
+    }
+
+    if (payload.status === 'confirmed') {
+        location.reload();
+        return;
+    }
+
+    pollPaymentStatus();
+}
+
+async function pollPaymentStatus() {
+    let attempts = 0;
+    const maxAttempts = 12;
+
+    const interval = setInterval(async () => {
+        attempts++;
+
+        const response = await fetch(`/api/payments/${window.currentPaymentId}/status`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        const payload = await response.json();
+
+        if (payload.success && payload.status === 'confirmed') {
+            clearInterval(interval);
+            location.reload();
+            return;
+        }
+
+        if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            alert('Payment is still pending verification. Please refresh in a minute.');
+        }
+    }, 5000);
+}
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('analyze-contract-form');
@@ -119,8 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(payload.message || 'Failed to analyze the contract.');
             }
 
-            window.currentPaymentId = payload.payment.paymentId;
-            window.currentReportId = payload.publicId;
+            window.currentPaymentId = payload.payment?.paymentId || null;
+            window.currentReportId = payload.publicId || null;
+
+            if (payload.publicId) {
+                localStorage.setItem('lastReportPublicId', payload.publicId);
+                window.history.pushState({}, '', `/r/${payload.publicId}`);
+            }
 
             reportTitle.textContent = payload.reportTitle || 'Contract analysis report';
             reportSubtitle.textContent = payload.reportSubtitle || 'Review the result below.';
@@ -134,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             setFormStatus('Report generated successfully.', 'info');
             document.getElementById('live-report').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
         } catch (error) {
             console.error(error);
             reportLoadingState.classList.add('hidden');
@@ -145,55 +225,6 @@ document.addEventListener('DOMContentLoaded', function () {
             submitButton.textContent = 'Analyze contract';
         }
 
-        async function pollPaymentStatus() {
-            let attempts = 0;
 
-            const interval = setInterval(async () => {
-                attempts++;
-
-                const res = await fetch(`/api/payments/${window.currentPaymentId}/status`);
-                const data = await res.json();
-
-                if (data.status === 'confirmed') {
-                    clearInterval(interval);
-                    location.reload();
-                }
-
-                if (attempts > 12) {
-                    clearInterval(interval);
-                    alert('Still verifying. Try refresh later.');
-                }
-            }, 7000);
-        }
-
-        function openPaymentModal() {
-            document.getElementById('payment-modal').classList.remove('hidden');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('payment-modal').classList.add('hidden');
-        }
-
-        async function submitPayment() {
-            const txHash = document.getElementById('tx-hash-input').value;
-
-            if (!txHash) {
-                alert('Enter transaction hash');
-                return;
-            }
-
-            const response = await fetch(`/api/payments/${window.currentPaymentId}/submit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ txHash })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('Payment submitted, verifying...');
-                pollPaymentStatus();
-            }
-        }
     });
 });

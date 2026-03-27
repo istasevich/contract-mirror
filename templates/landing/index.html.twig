@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html { scroll-behavior: smooth; }
+
         body {
             background:
                 radial-gradient(circle at top center, rgba(56, 189, 248, 0.16), transparent 34%),
@@ -14,11 +15,13 @@
                 radial-gradient(circle at 80% 10%, rgba(59, 130, 246, 0.12), transparent 20%),
                 #0b132b;
         }
+
         .glass {
             background: rgba(15, 23, 42, 0.72);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
         }
+
         .grid-fade {
             background-image:
                 linear-gradient(rgba(148,163,184,.08) 1px, transparent 1px),
@@ -30,13 +33,17 @@
     </style>
 </head>
 <body class="text-slate-200 font-sans leading-relaxed antialiased">
+{% set hasInitialReport = initialReportHtml is defined and initialReportHtml is not empty %}
+
 <div class="fixed inset-0 grid-fade pointer-events-none"></div>
 
 <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/40 backdrop-blur-xl">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <a href="#top" class="flex items-center gap-3">
             <div class="h-10 w-3 rounded-full bg-gradient-to-b from-violet-400 to-cyan-400 shadow-[0_0_24px_rgba(99,102,241,.45)]"></div>
-            <span class="text-2xl font-black tracking-tight text-white">ContractMirror<span class="text-violet-400">.ai</span></span>
+            <span class="text-2xl font-black tracking-tight text-white">
+                ContractMirror<span class="text-violet-400">.ai</span>
+            </span>
         </a>
 
         <nav class="hidden items-center gap-8 text-sm font-semibold text-slate-300 md:flex">
@@ -46,7 +53,9 @@
             <a href="#live-report" class="transition hover:text-white">Live result</a>
         </nav>
 
-        <a href="#analyze" class="rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(99,102,241,.35)] transition hover:-translate-y-0.5">Get Started</a>
+        <a href="#analyze" class="rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(99,102,241,.35)] transition hover:-translate-y-0.5">
+            Get Started
+        </a>
     </div>
 </header>
 
@@ -60,16 +69,23 @@
 
                 <h1 class="mx-auto max-w-4xl text-5xl font-black tracking-tight text-white md:text-7xl">
                     Check freelance contracts
-                    <span class="bg-gradient-to-r from-violet-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent">before signing</span>
+                    <span class="bg-gradient-to-r from-violet-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent">
+                        before signing
+                    </span>
                 </h1>
 
                 <p class="mx-auto mt-6 max-w-3xl text-lg text-slate-300 md:text-xl">
-                    Upload a contract and get a clear risk score, red flags, rewrite suggestions, and a structured summary in seconds. ContractMirror explains legal meaning in plain language, even when the contract is written in another language.
+                    Upload a contract and get a clear risk score, red flags, rewrite suggestions, and a structured summary in seconds.
+                    ContractMirror explains legal meaning in plain language, even when the contract is written in another language.
                 </p>
 
                 <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                    <a href="#analyze" class="inline-flex min-w-[220px] items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 px-7 py-4 text-base font-bold text-white shadow-[0_0_36px_rgba(99,102,241,.35)] transition hover:-translate-y-0.5">Analyze your contract</a>
-                    <a href="#live-report" class="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-base font-bold text-slate-200 transition hover:bg-white/10">See live report layout</a>
+                    <a href="#analyze" class="inline-flex min-w-[220px] items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 px-7 py-4 text-base font-bold text-white shadow-[0_0_36px_rgba(99,102,241,.35)] transition hover:-translate-y-0.5">
+                        Analyze your contract
+                    </a>
+                    <a href="#live-report" class="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-base font-bold text-slate-200 transition hover:bg-white/10">
+                        See live report layout
+                    </a>
                 </div>
             </div>
 
@@ -81,7 +97,9 @@
                             <h2 class="mt-2 text-2xl font-bold text-white">Drop your PDF, DOCX, or TXT here</h2>
                             <p class="mt-2 text-slate-400">Private by default. Encrypted in transit. Max file size 10 MB in MVP.</p>
                         </div>
-                        <div class="rounded-2xl border border-violet-400/20 bg-violet-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-200">Fast AI review</div>
+                        <div class="rounded-2xl border border-violet-400/20 bg-violet-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-200">
+                            Fast AI review
+                        </div>
                     </div>
 
                     <form
@@ -174,16 +192,22 @@
                             <div class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Sample output</div>
                             <h3 class="mt-2 text-xl font-bold text-white">Contract risk snapshot</h3>
                         </div>
-                        <span class="rounded-full border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-orange-300">Medium risk</span>
+                        <span class="rounded-full border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-orange-300">
+                            Medium risk
+                        </span>
                     </div>
 
                     <div class="mt-6 rounded-[24px] border border-white/10 bg-slate-950/50 p-6">
                         <div class="flex items-end justify-between gap-4">
                             <div>
                                 <div class="text-sm text-slate-400">Contract Risk Score</div>
-                                <div class="mt-2 text-5xl font-black tracking-tight text-white">6.4<span class="text-xl text-slate-500"> / 10</span></div>
+                                <div class="mt-2 text-5xl font-black tracking-tight text-white">
+                                    6.4<span class="text-xl text-slate-500"> / 10</span>
+                                </div>
                             </div>
-                            <div class="rounded-2xl border border-violet-400/20 bg-violet-400/10 px-3 py-2 text-sm font-bold text-violet-200">Needs review</div>
+                            <div class="rounded-2xl border border-violet-400/20 bg-violet-400/10 px-3 py-2 text-sm font-bold text-violet-200">
+                                Needs review
+                            </div>
                         </div>
 
                         <div class="mt-6">
@@ -200,17 +224,23 @@
                         <div class="mt-6 space-y-4">
                             <div class="rounded-2xl border border-red-400/20 bg-red-500/10 p-4">
                                 <div class="text-xs font-bold uppercase tracking-[0.18em] text-red-300">Flagged clause</div>
-                                <p class="mt-2 text-sm text-slate-200">“Contractor agrees to modify deliverables until the client is fully satisfied.”</p>
+                                <p class="mt-2 text-sm text-slate-200">
+                                    “Contractor agrees to modify deliverables until the client is fully satisfied.”
+                                </p>
                             </div>
 
                             <div class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
                                 <div class="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">Plain explanation</div>
-                                <p class="mt-2 text-sm text-slate-100">This wording gives the client very broad power to keep asking for changes without a clear stopping point or additional payment terms.</p>
+                                <p class="mt-2 text-sm text-slate-100">
+                                    This wording gives the client very broad power to keep asking for changes without a clear stopping point or additional payment terms.
+                                </p>
                             </div>
 
                             <div class="rounded-2xl border border-violet-400/20 bg-violet-400/10 p-4">
                                 <div class="text-xs font-bold uppercase tracking-[0.18em] text-violet-200">Suggested rewrite</div>
-                                <p class="mt-2 text-sm text-slate-100">“The agreed price includes up to 2 revision rounds. Additional revision requests are billed separately at the contractor’s standard hourly rate.”</p>
+                                <p class="mt-2 text-sm text-slate-100">
+                                    “The agreed price includes up to 2 revision rounds. Additional revision requests are billed separately at the contractor’s standard hourly rate.”
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -222,7 +252,9 @@
                 <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2">Designers</span>
                 <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2">Agencies</span>
                 <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2">Remote pros</span>
-                <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-cyan-200">Cross-language contract support</span>
+                <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-cyan-200">
+                    Cross-language contract support
+                </span>
             </div>
         </div>
     </section>
@@ -232,8 +264,13 @@
             <div class="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
                 <div>
                     <div class="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">Cross-language clarity</div>
-                    <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">Understand contracts across languages</h2>
-                    <p class="mt-5 text-lg text-slate-400">Upload contracts written in German, Polish, Spanish, or English. ContractMirror explains the legal meaning in plain language, so users can understand what they are agreeing to without guessing or translating clause by clause.</p>
+                    <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+                        Understand contracts across languages
+                    </h2>
+                    <p class="mt-5 text-lg text-slate-400">
+                        Upload contracts written in German, Polish, Spanish, or English. ContractMirror explains the legal meaning
+                        in plain language, so users can understand what they are agreeing to without guessing or translating clause by clause.
+                    </p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
@@ -257,7 +294,9 @@
         <div class="mx-auto max-w-7xl px-6">
             <div class="mb-8">
                 <div class="text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">How it works</div>
-                <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">From upload to decision in minutes</h2>
+                <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+                    From upload to decision in minutes
+                </h2>
             </div>
             <div class="grid gap-4 md:grid-cols-3">
                 <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
@@ -280,27 +319,42 @@
         <div class="mx-auto max-w-7xl px-6">
             <div class="mb-8 max-w-3xl">
                 <div class="text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">Live report</div>
-                <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">Beautiful verdict view, not raw JSON</h2>
-                <p class="mt-4 text-lg text-slate-400">The analysis result appears here after upload, with a simple view for quick decisions and a detailed view for clause-by-clause review.</p>
+                <h2 class="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+                    Beautiful verdict view, not raw JSON
+                </h2>
+                <p class="mt-4 text-lg text-slate-400">
+                    The analysis result appears here after upload, with a simple view for quick decisions and a detailed view for clause-by-clause review.
+                </p>
             </div>
 
             <div id="report-shell" class="glass rounded-[32px] border border-white/10 p-6 shadow-2xl shadow-slate-950/40">
                 <div class="flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-center md:justify-between">
                     <div>
                         <div class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Analysis report</div>
-                        <h3 id="report-title" class="mt-2 text-2xl font-bold text-white">No report yet</h3>
-                        <p id="report-subtitle" class="mt-2 text-slate-400">Upload a contract above and the structured report will appear here.</p>
+                        <h3 id="report-title" class="mt-2 text-2xl font-bold text-white">
+                            {{ hasInitialReport ? (initialReportTitle|default('Contract analysis report')) : 'No report yet' }}
+                        </h3>
+                        <p id="report-subtitle" class="mt-2 text-slate-400">
+                            {{ hasInitialReport ? (initialReportSubtitle|default('Review the verdict, risks, and suggested fixes.')) : 'Upload a contract above and the structured report will appear here.' }}
+                        </p>
                     </div>
+
                     <div class="flex gap-3">
-                        <button id="simple-view-button" type="button" class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-100">Simple view</button>
-                        <button id="detailed-view-button" type="button" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-300">Detailed view</button>
+                        <button id="simple-view-button" type="button" class="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-100">
+                            Simple view
+                        </button>
+                        <button id="detailed-view-button" type="button" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-300">
+                            Detailed view
+                        </button>
                     </div>
                 </div>
 
-                <div id="report-empty-state" class="py-12 text-center">
+                <div id="report-empty-state" class="{% if hasInitialReport %}hidden {% endif %}py-12 text-center">
                     <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-800 text-3xl">🪞</div>
                     <h4 class="mt-5 text-xl font-bold text-white">Ready for your first contract</h4>
-                    <p class="mx-auto mt-3 max-w-2xl text-slate-400">You will get a risk score, plain-language summary, top issues, missing protections, and a final recommendation.</p>
+                    <p class="mx-auto mt-3 max-w-2xl text-slate-400">
+                        You will get a risk score, plain-language summary, top issues, missing protections, and a final recommendation.
+                    </p>
                 </div>
 
                 <div id="report-loading-state" class="hidden py-12">
@@ -315,59 +369,69 @@
                     </div>
                 </div>
 
-                <div id="report-content" class="hidden py-8"></div>
-            </div>
-        </div>
-        <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-            <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
-
-                <h2 class="text-xl font-bold text-white mb-4">
-                    🔓 Unlock full report
-                </h2>
-
-                <p class="text-slate-400 mb-4">
-                    Pay <strong>$9 in USDT (TRC20)</strong> to unlock:
-                </p>
-
-                <ul class="text-sm text-slate-300 mb-6 space-y-1">
-                    <li>• Full clause breakdown</li>
-                    <li>• Safer wording</li>
-                    <li>• Missing protections</li>
-                    <li>• PDF export</li>
-                </ul>
-
-                <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
-                    TXYZ123456789YOURADDRESS
+                <div id="report-content" class="{% if not hasInitialReport %}hidden {% endif %}py-8">
+                    {% if hasInitialReport %}
+                        {{ initialReportHtml|raw }}
+                    {% endif %}
                 </div>
-
-                <p class="text-xs text-slate-500 mt-2 text-center">
-                    Network: TRC20
-                </p>
-
-                <input
-                    id="tx-hash-input"
-                    type="text"
-                    placeholder="Paste transaction hash"
-                    class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
-                />
-
-                <button
-                    id="submit-payment"
-                    class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
-                >
-                    Submit payment
-                </button>
-
-                <button
-                    onclick="closePaymentModal()"
-                    class="mt-2 w-full text-sm text-slate-400"
-                >
-                    Cancel
-                </button>
             </div>
         </div>
     </section>
 </main>
+
+<div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-6">
+        <h2 class="mb-4 text-xl font-bold text-white">🔓 Unlock full report</h2>
+
+        <p class="mb-4 text-slate-400">
+            Pay <strong id="payment-modal-amount-text">9.00 USDT</strong> to unlock:
+        </p>
+
+        <ul class="mb-6 space-y-1 text-sm text-slate-300">
+            <li>• Full clause breakdown</li>
+            <li>• Safer wording</li>
+            <li>• Missing protections</li>
+            <li>• PDF export</li>
+        </ul>
+
+        <div id="payment-modal-address" class="break-all rounded-xl bg-black/40 p-3 text-center font-mono text-sm text-green-400">
+            {{ initialPayment.address|default('Wallet address will appear after report generation') }}
+        </div>
+
+        <p class="mt-2 text-center text-xs text-slate-500">
+            Network: TRC20
+        </p>
+
+        <input
+            id="tx-hash-input"
+            type="text"
+            placeholder="Paste transaction hash"
+            class="mt-4 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+        />
+
+        <button
+            onclick="submitPayment()"
+            class="mt-4 w-full rounded-xl bg-violet-500 py-3 font-bold text-white hover:bg-violet-600"
+        >
+            Submit payment
+        </button>
+
+        <button
+            onclick="closePaymentModal()"
+            class="mt-2 w-full text-sm text-slate-400"
+        >
+            Cancel
+        </button>
+    </div>
+</div>
+
+<script>
+    window.currentReportId = {{ initialPublicId is defined ? initialPublicId|json_encode|raw : 'null' }};
+    window.currentPaymentId = {{ initialPayment is defined and initialPayment ? initialPayment.paymentId|json_encode|raw : 'null' }};
+    window.currentPaymentAddress = {{ initialPayment is defined and initialPayment ? initialPayment.address|json_encode|raw : 'null' }};
+    window.currentPaymentAmount = {{ initialPayment is defined and initialPayment ? initialPayment.amount|json_encode|raw : 'null' }};
+    window.currentPaymentCurrency = {{ initialPayment is defined and initialPayment ? initialPayment.currency|json_encode|raw : 'null' }};
+</script>
 
 <script src="/assets/contract-analyzer.js"></script>
 </body>

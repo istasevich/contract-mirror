@@ -14,8 +14,8 @@ use Symfony\Component\Uid\Uuid;
 class ReportPayment
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    protected Uuid $id;
+    #[ORM\Column(type: 'guid', unique: true)]
+    protected string $id;
 
     #[ORM\ManyToOne(targetEntity: ContractReport::class)]
     #[ORM\JoinColumn(name: 'report_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
@@ -62,7 +62,7 @@ class ReportPayment
         string $walletAddress,
         string $expectedAmount,
     ) {
-        $this->id = Uuid::v7();
+        $this->id = Uuid::v7()->toRfc4122();
         $this->report = $report;
         $this->walletAddress = $walletAddress;
         $this->expectedAmount = $expectedAmount;
@@ -70,7 +70,7 @@ class ReportPayment
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): Uuid
+    public function getId(): string
     {
         return $this->id;
     }
@@ -78,6 +78,21 @@ class ReportPayment
     public function getReport(): ContractReport
     {
         return $this->report;
+    }
+
+    public function getWalletAddress(): string
+    {
+        return $this->walletAddress;
+    }
+
+    public function getExpectedAmount(): string
+    {
+        return $this->expectedAmount;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
     }
 
     public function getTxHash(): ?string
@@ -90,25 +105,9 @@ class ReportPayment
         return $this->status;
     }
 
-    public function getExpectedAmount(): string
-    {
-        return $this->expectedAmount;
-    }
-
-    public function getWalletAddress(): string
-    {
-        return $this->walletAddress;
-    }
-
-    public function getCurrency(): string
-    {
-        return $this->currency;
-
-    }
-
     public function setTxHash(string $txHash): void
     {
-        $this->txHash = $txHash;
+        $this->txHash = trim($txHash);
         $this->updatedAt = new \DateTimeImmutable();
     }
 

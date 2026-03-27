@@ -1,5 +1,7 @@
 parameters:
   openai.model: '%env(default:OPENAI_MODEL:OPENAI_MODEL)%'
+  app.crypto.wallet_address: '%env(CRYPTO_WALLET_ADDRESS)%'
+  app.crypto.usdt_tron_contract: '%env(USDT_TRON_CONTRACT_ADDRESS)%'
 
 services:
   _defaults:
@@ -12,8 +14,13 @@ services:
       - '../src/Kernel.php'
 
   App\Feature\Payment\Service\CreateReportPaymentService:
-      arguments:
-          $walletAddress: '%env(CRYPTO_WALLET_ADDRESS)%'
+    arguments:
+        $walletAddress: '%app.crypto.wallet_address%'
+
+  App\Feature\Payment\Service\VerifyTronPaymentService:
+    arguments:
+        $walletAddress: '%app.crypto.wallet_address%'
+        $usdtContractAddress: '%app.crypto.usdt_tron_contract%'
 
   monolog.logger.openai:
       class: Psr\Log\LoggerInterface
