@@ -8,8 +8,14 @@ final class ContractAnalysisPayloadNormalizer
 {
     public function normalize(array $payload): array
     {
-        $riskScore = (int) ($payload['risk_score'] ?? 0);
-        $riskScore = max(0, min(100, $riskScore));
+        $riskScore = (float) ($payload['risk_score'] ?? 0);
+
+        // если пришло в шкале 0–10 конвертим
+        if ($riskScore > 0 && $riskScore <= 10) {
+            $riskScore *= 10;
+        }
+
+        $riskScore = max(0, min(100, (int) round($riskScore)));
 
         $overallRisk = strtoupper((string) ($payload['overall_risk'] ?? 'MEDIUM'));
         if (!in_array($overallRisk, ['LOW', 'MEDIUM', 'HIGH'], true)) {

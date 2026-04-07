@@ -8,6 +8,9 @@ final class AnalyzeContractPromptFactory
 {
     public function build(string $contractText, string $language): string
     {
+        $contractText = $this->normalizeText($contractText);
+        $language = trim($language);
+
         return <<<PROMPT
 You are ContractMirror, an AI contract reviewer for freelancers, contractors, and remote professionals.
 
@@ -75,5 +78,14 @@ Required JSON schema:
 Contract text:
 {$contractText}
 PROMPT;
+    }
+
+    protected function normalizeText(string $text): string
+    {
+        $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+        $text = preg_replace('/[^\P{C}\n\r\t]/u', '', $text) ?? $text;
+        $text = str_replace("\u{0000}", '', $text);
+
+        return trim($text);
     }
 }

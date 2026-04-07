@@ -55,12 +55,12 @@ final class OpenAiLlmClient implements LlmClientInterface
         try {
             $payload = json_decode($rawBody, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $exception) {
-            $this->logger->error('Failed to decode OpenAI raw HTTP response.', [
+            $this->logger->error('Failed to decode raw HTTP response.', [
                 'raw_body' => $rawBody,
                 'exception' => $exception->getMessage(),
             ]);
 
-            throw new RuntimeException('Failed to decode OpenAI HTTP response.', 0, $exception);
+            throw new RuntimeException('Failed to decode HTTP response.', 0, $exception);
         }
 
         $content = $payload['choices'][0]['message']['content'] ?? null;
@@ -70,7 +70,7 @@ final class OpenAiLlmClient implements LlmClientInterface
                 'payload' => $payload,
             ]);
 
-            throw new RuntimeException('Empty or invalid OpenAI response payload.');
+            throw new RuntimeException('Empty or invalid response payload.');
         }
 
         $this->logger->info('OpenAI content extracted.', [

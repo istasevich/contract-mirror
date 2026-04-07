@@ -105,6 +105,16 @@ class ReportPayment
         return $this->status;
     }
 
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
     public function setTxHash(string $txHash): void
     {
         $this->txHash = trim($txHash);

@@ -35,31 +35,59 @@ final class VerifyTronPaymentService
             return true;
         }
 
-        if ($payment->getTxHash() === null || trim($payment->getTxHash()) === '') {
-            return false;
+        $txHash = $payment->getTxHash();
+
+        if ($txHash === null || trim($txHash) === '') {
+            throw new RuntimeException('Transaction hash is required.');
         }
 
-        $url = 'https://apilist.tronscanapi.com/api/transaction-info?hash=' . urlencode($payment->getTxHash());
+        $existingPayment = $this->paymentRepository->findOneBy([
+            'txHash' => $txHash,
+        ]);
+
+        if ($existingPayment !== null && $existingPayment->getId() !== $payment->getId()) {
+            throw new RuntimeException('Transaction hash already used.');
+        }
+
+        $url = 'https://apilist.tronscanapi.com/api/transaction-info?hash=' . urlencode($txHash);
 
         $response = $this->httpClient->request('GET', $url);
         $rawBody = $response->getContent(false);
 
-        $this->logger->info('TRON verify response received.', [
-            'paymentId' => $paymentId,
-            'txHash' => $payment->getTxHash(),
-            'rawBody' => $rawBody,
-        ]);
-
         $payload = json_decode($rawBody, true);
 
         if (!is_array($payload)) {
-            return false;
+            throw new RuntimeException('Invalid transaction payload.');
+        }
+
+        //проверка статуса транзакции
+        if (($payload['contractRet'] ?? null) !== 'SUCCESS') {
+            throw new RuntimeException('Transaction failed.');
+        }
+
+        // защита от старых транзакций
+        $txDate = $this->resolveTransactionTimestamp($payload);
+
+        if ($txDate === null) {
+            throw new RuntimeException('Transaction timestamp is missing.');
+        }
+
+        $allowedFrom = $payment->getCreatedAt()->modify('-30 minutes');
+
+        if ($txDate < $allowedFrom) {
+            $this->logger->warning('Old transaction rejected.', [
+                'txDate' => $txDate->format(DATE_ATOM),
+                'paymentCreatedAt' => $payment->getCreatedAt()->format(DATE_ATOM),
+            ]);
+
+           // throw new RuntimeException('Transaction is too old for this
+            // payment.');
         }
 
         $transfers = $payload['trc20TransferInfo'] ?? null;
 
         if (!is_array($transfers)) {
-            return false;
+            throw new RuntimeException('Invalid transaction payload.');
         }
 
         foreach ($transfers as $transfer) {
@@ -69,24 +97,32 @@ final class VerifyTronPaymentService
 
             $toAddress = (string) ($transfer['to_address'] ?? '');
             $tokenContract = (string) ($transfer['contract_address'] ?? '');
-            $amountString = (string) ($transfer['amount_str'] ?? '0');
-            $fromAddress = (string) ($transfer['from_address'] ?? '');
+            $rawAmount = (float) ($transfer['amount_str'] ?? '0');
+            $decimals = 6;
 
-            if ($toAddress === '') {
+            $amount = $rawAmount / (10 ** $decimals);
+
+            if ($amount < (float) $payment->getExpectedAmount()) {
                 continue;
             }
+            $fromAddress = (string) ($transfer['from_address'] ?? '');
 
+            // проверка адреса
             if (mb_strtolower($toAddress) !== mb_strtolower($this->walletAddress)) {
                 continue;
             }
 
+            // проверка контракта (USDT)
             if ($this->usdtContractAddress !== '' && mb_strtolower($tokenContract) !== mb_strtolower($this->usdtContractAddress)) {
                 continue;
             }
 
-            if ((float) $amountString < (float) $payment->getExpectedAmount()) {
+            if ($amount < $payment->getExpectedAmount()) {
                 continue;
             }
+
+
+            $payment->setTxHash($txHash);
 
             $payment->markConfirmed(
                 rawVerificationPayload: $payload,
@@ -108,5 +144,24 @@ final class VerifyTronPaymentService
         }
 
         return false;
+    }
+
+    protected function resolveTransactionTimestamp(array $payload): ?\DateTimeImmutable
+    {
+        $timestampMs = $payload['blockTimeStamp']
+            ?? $payload['timestamp']
+            ?? (isset($payload['cost']['date_created']) ? ((int) $payload['cost']['date_created'] * 1000) : null);
+
+        if ($timestampMs === null) {
+            return null;
+        }
+
+        $timestampMs = (int) $timestampMs;
+
+        if ($timestampMs <= 0) {
+            return null;
+        }
+
+        return (new \DateTimeImmutable())->setTimestamp((int) floor($timestampMs / 1000));
     }
 }

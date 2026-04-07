@@ -1,11 +1,32 @@
 function openPaymentModal() {
-    document.getElementById('payment-modal')?.classList.remove('hidden');
+    const modal = document.getElementById('payment-modal');
+    const dialog = document.getElementById('payment-modal-dialog');
+    const input = document.getElementById('tx-hash-input');
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+
+    setTimeout(() => {
+        dialog?.focus();
+        input?.focus();
+    }, 50);
 }
 
 function closePaymentModal() {
-    document.getElementById('payment-modal')?.classList.add('hidden');
-}
+    const modal = document.getElementById('payment-modal');
+    const input = document.getElementById('tx-hash-input');
 
+    modal?.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+
+    if (input) {
+        input.blur();
+    }
+}
 async function submitPayment() {
     const input = document.getElementById('tx-hash-input');
     const txHash = input ? input.value.trim() : '';
@@ -195,6 +216,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
             window.currentPaymentId = payload.payment?.paymentId || null;
             window.currentReportId = payload.publicId || null;
+            window.currentPaymentAddress = payload.payment?.address || null;
+            window.currentPaymentAmount = payload.payment?.amount || null;
+            window.currentPaymentCurrency = payload.payment?.currency || null;
+
+            const paymentAddress = document.getElementById('payment-modal-address');
+            const paymentAmountText = document.getElementById('payment-modal-amount-text');
+
+            if (paymentAddress) {
+                paymentAddress.textContent = window.currentPaymentAddress || 'Wallet address unavailable';
+            }
+
+            if (paymentAmountText) {
+                const amount = window.currentPaymentAmount || '9.00';
+                const currency = window.currentPaymentCurrency || 'USDT';
+                paymentAmountText.textContent = `${amount} ${currency}`;
+            }
 
             if (payload.publicId) {
                 localStorage.setItem('lastReportPublicId', payload.publicId);
@@ -226,5 +263,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
+    });
+
+    const paymentModal = document.getElementById('payment-modal');
+    const paymentDialog = document.getElementById('payment-modal-dialog');
+
+    paymentModal?.addEventListener('click', (event) => {
+        if (event.target === paymentModal) {
+            closePaymentModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && paymentModal && !paymentModal.classList.contains('hidden')) {
+            closePaymentModal();
+        }
     });
 });

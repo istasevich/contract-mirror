@@ -36,11 +36,10 @@ final class SubmitPaymentHashController extends AbstractController
             $txHash = (string) ($payload['txHash'] ?? '');
 
             $payment = $this->submitPaymentHashService->handle($paymentId, $txHash);
-            $verified = $this->verifyTronPaymentService->handle($payment->getId());
 
             return $this->json([
                 'success' => true,
-                'status' => $verified ? 'confirmed' : 'pending',
+                'status' => $payment->isPending() ? 'pending' : 'confirmed',
             ], Response::HTTP_OK);
         } catch (Throwable $exception) {
             return $this->json([
