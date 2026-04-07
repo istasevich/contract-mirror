@@ -1,5 +1,5 @@
 monolog:
-    channels: ['contract_analyzer', 'openai']
+    channels: ['contract_analyzer', 'openai', 'deprecation']
 
     handlers:
         main:
