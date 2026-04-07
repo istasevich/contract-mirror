@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contract Analysis Report</title>
+    <style>
+        @page {
+            margin: 24mm 18mm 20mm 18mm;
+        }
+
+        body {
+            margin: 0;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.55;
+            color: #111827;
+            background: #ffffff;
+        }
+
+        .document {
+            width: 100%;
+        }
+
+        .header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+
+        .meta-table td {
+            padding: 6px 0;
+            vertical-align: top;
+        }
+
+        .meta-label {
+            width: 140px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .score-box {
+            margin-top: 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 14px 16px;
+            background: #f9fafb;
+        }
+
+        .score-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid #d1d5db;
+        }
+
+        .risk-low {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .risk-medium {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .risk-high {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            padding: 14px 16px;
+        }
+
+        .issue-card,
+        .protection-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            background: #ffffff;
+        }
+
+        .issue-header,
+        .protection-header {
+            margin-bottom: 10px;
+        }
+
+        .issue-title,
+        .protection-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 6px 0;
+        }
+
+        .issue-meta,
+        .protection-meta {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border: 1px solid #d1d5db;
+            margin-right: 8px;
+        }
+
+        .severity-low {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .severity-medium {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .severity-high {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .block {
+            margin-top: 10px;
+        }
+
+        .block-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .block-value {
+            color: #111827;
+        }
+
+        .quote-box {
+            border-left: 3px solid #d1d5db;
+            background: #f9fafb;
+            padding: 10px 12px;
+            color: #111827;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .list li {
+            margin-bottom: 6px;
+        }
+
+        .footer {
+            margin-top: 36px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .empty-note {
+            color: #6b7280;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="document">
+    {% set overallRiskClass = 'risk-medium' %}
+    {% if report.overallRisk == 'HIGH' %}
+        {% set overallRiskClass = 'risk-high' %}
+    {% elseif report.overallRisk == 'LOW' %}
+        {% set overallRiskClass = 'risk-low' %}
+    {% endif %}
+
+    <div class="header">
+        <div class="brand">ContractMirror Report</div>
+        <h1 class="title">Contract Analysis Report</h1>
+        <p class="subtitle">
+            Structured review of contract risks, missing protections, and safer wording suggestions.
+        </p>
+
+        <table class="meta-table">
+            <tr>
+                <td class="meta-label">Document type</td>
+                <td>{{ report.documentType ?? 'Unknown' }}</td>
+            </tr>
+            <tr>
+                <td class="meta-label">Language</td>
+                <td>{{ report.language ?? 'Unknown' }}</td>
+            </tr>
+            <tr>
+                <td class="meta-label">Generated</td>
+                <td>{{ "now"|date("Y-m-d H:i") }}</td>
+            </tr>
+        </table>
+
+        <div class="score-box">
+            <div class="score-label">Risk score</div>
+            <p class="score-value">{{ report.riskScore }}/100</p>
+            <span class="risk-badge {{ overallRiskClass }}">{{ report.overallRisk }}</span>
+        </div>
+    </div>
+
+    <section class="section">
+        <h2 class="section-title">Executive Summary</h2>
+        <div class="summary-box">
+            {% if report.summary is defined and report.summary %}
+                {{ report.summary|nl2br }}
+            {% else %}
+                <span class="empty-note">No summary available.</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Key Issues</h2>
+
+        {% if report.issues is defined and report.issues|length > 0 %}
+            {% for issue in report.issues %}
+                {% set severityClass = 'severity-medium' %}
+                {% if issue.severity == 'HIGH' %}
+                    {% set severityClass = 'severity-high' %}
+                {% elseif issue.severity == 'LOW' %}
+                    {% set severityClass = 'severity-low' %}
+                {% endif %}
+
+                <article class="issue-card">
+                    <div class="issue-header">
+                        <h3 class="issue-title">{{ loop.index }}. {{ issue.title }}</h3>
+                        <div class="issue-meta">
+                            <span class="severity-badge {{ severityClass }}">{{ issue.severity }}</span>
+                            {% if issue.category is defined and issue.category %}
+                                <span>Category: {{ issue.category }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if issue.originalClause is defined and issue.originalClause %}
+                        <div class="block">
+                            <div class="block-label">Original clause</div>
+                            <div class="quote-box">{{ issue.originalClause|nl2br }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if issue.explanation is defined and issue.explanation %}
+                        <div class="block">
+                            <div class="block-label">Explanation</div>
+                            <div class="block-value">{{ issue.explanation|nl2br }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if issue.risk is defined and issue.risk %}
+                        <div class="block">
+                            <div class="block-label">Why this matters</div>
+                            <div class="block-value">{{ issue.risk|nl2br }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if issue.suggestion is defined and issue.suggestion %}
+                        <div class="block">
+                            <div class="block-label">Suggested safer wording</div>
+                            <div class="quote-box">{{ issue.suggestion|nl2br }}</div>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="empty-note">No issues were identified.</p>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Missing Protections</h2>
+
+        {% if report.missingProtections is defined and report.missingProtections|length > 0 %}
+            {% for protection in report.missingProtections %}
+                <article class="protection-card">
+                    <div class="protection-header">
+                        <h3 class="protection-title">{{ loop.index }}. {{ protection.title }}</h3>
+                        <div class="protection-meta">
+                            {% if protection.category is defined and protection.category %}
+                                Category: {{ protection.category }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if protection.explanation is defined and protection.explanation %}
+                        <div class="block">
+                            <div class="block-label">Why it matters</div>
+                            <div class="block-value">{{ protection.explanation|nl2br }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if protection.suggestion is defined and protection.suggestion %}
+                        <div class="block">
+                            <div class="block-label">Suggested clause</div>
+                            <div class="quote-box">{{ protection.suggestion|nl2br }}</div>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="empty-note">No missing protections were listed.</p>
+        {% endif %}
+    </section>
+
+    {% if report.issues is defined and report.issues|length > 0 %}
+        <section class="section page-break">
+            <h2 class="section-title">Actionable Recommendations</h2>
+            <ul class="list">
+                {% for issue in report.issues %}
+                    {% if issue.suggestion is defined and issue.suggestion %}
+                        <li>
+                            <strong>{{ issue.title }}</strong> —
+                            {% if issue.severity is defined and issue.severity %}
+                                <span class="muted">Severity: {{ issue.severity }}.</span>
+                            {% endif %}
+                            Review and consider replacing the clause with the safer wording suggested above.
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    <div class="footer">
+        Generated by ContractMirror. This report is informational and does not constitute legal advice.
+    </div>
+</div>
+</body>
+</html>
