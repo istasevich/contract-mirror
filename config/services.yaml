@@ -13,10 +13,9 @@ services:
     exclude:
       - '../src/Kernel.php'
 
-  services:
-      App\EventListener\ApiExceptionListener:
-          tags:
-              - { name: kernel.event_listener, event: kernel.exception }
+  App\EventListener\ApiExceptionListener:
+      tags:
+          - { name: kernel.event_listener, event: kernel.exception }
 
   App\Feature\Payment\Service\CreateReportPaymentService:
     arguments:
