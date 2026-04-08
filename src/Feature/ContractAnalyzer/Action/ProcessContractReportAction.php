@@ -46,6 +46,7 @@ final class ProcessContractReportAction
 
         $html = $this->twig->render('contract/_report.html.twig', [
             'report' => $reportView,
+            'publicId' => $storedReport->getPublicId(),
             'isLocked' => true,
             'payment' => [
                 'paymentId' => $payment->getId(),

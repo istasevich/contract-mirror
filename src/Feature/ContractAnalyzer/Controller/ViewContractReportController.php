@@ -48,6 +48,7 @@ final class ViewContractReportController extends AbstractController
             'report' => $report->getReportPayload(),
             'payment' => $payment,
             'isLocked' => $isLocked,
+            'publicId' => $report->getPublicId(),
         ]);
 
         return $this->render('landing/index.html.twig', [

@@ -13,6 +13,15 @@ RUN apk add --no-cache \
     freetype-dev \
     libjpeg-turbo-dev \
     libpng-dev \
+    nodejs \
+    npm \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    font-noto \
     $PHPIZE_DEPS \
     && docker-php-ext-configure gd \
         --with-freetype \
@@ -29,5 +38,8 @@ RUN apk add --no-cache \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+
+COPY package*.json ./
+RUN npm install --omit=dev
 
 CMD ["php-fpm"]

@@ -8,11 +8,9 @@
 /public/build/
 
 ###> symfony/framework-bundle ###
-/.env.local
 /.env.local.php
-/.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
-/vendor/
+/node_modules/
 ###< symfony/framework-bundle ###

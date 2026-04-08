@@ -1,6 +1,9 @@
 <div class="flex flex-col gap-6">
 
-    {% include 'contract/_report_header.html.twig' %}
+    {% include 'contract/_report_header.html.twig' with {
+        report: report,
+        publicId: publicId
+    } %}
     {% include 'contract/_report_summary.html.twig' %}
 
     <div class="flex flex-col gap-4">

@@ -8,6 +8,18 @@
                 <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">Language: {{ report.language }}</span>
                 <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">Type: {{ report.documentType }}</span>
             </div>
+                {% if publicId  %}
+                <div class="mt-6">
+                    <a
+                        href="{{ path('app_contract_report_pdf', { publicId: publicId }) }}"
+                        target="_blank"
+                        class="inline-flex items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan-400/20"
+                    >
+                        Download PDF
+                    </a>
+                </div>
+            {% endif %}
+
         </div>
 
         <div class="rounded-[24px] border px-5 py-4 text-right
