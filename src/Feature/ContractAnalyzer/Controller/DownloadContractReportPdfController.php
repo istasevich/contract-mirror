@@ -6,11 +6,10 @@ namespace App\Feature\ContractAnalyzer\Controller;
 
 use App\Feature\ContractAnalyzer\Service\GenerateContractReportPdfService;
 use App\Repository\ContractReportRepository;
+use App\Shared\Exception\ReportLockedException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class DownloadContractReportPdfController extends AbstractController
@@ -30,11 +29,11 @@ final class DownloadContractReportPdfController extends AbstractController
         ]);
 
         if ($report === null) {
-            throw new NotFoundHttpException('Report not found.');
+            throw new ReportLockedException('Report not found.');
         }
 
         if ($report->isLocked()) {
-            throw new AccessDeniedHttpException('Report is locked. Please unlock full report to download.');
+            throw new ReportLockedException('Report is locked. Please unlock full report to download.');
         }
 
         $pdfBinary = $this->generateContractReportPdfService->handle($report);
