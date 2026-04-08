@@ -29,7 +29,7 @@ final class DownloadContractReportPdfController extends AbstractController
         ]);
 
         if ($report === null) {
-            throw $this->createNotFoundException('Report not found.');
+            throw new RuntimeException('Report not found.');
         }
 
         if ($report->isLocked()) {
