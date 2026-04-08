@@ -6,6 +6,7 @@ namespace App\Feature\ContractAnalyzer\Service;
 
 use App\Entity\ContractReport;
 use Spatie\Browsershot\Browsershot;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Twig\Environment;
 
 final class GenerateContractReportPdfService
@@ -21,7 +22,7 @@ final class GenerateContractReportPdfService
         $payload = $report->getReportPayload();
 
         if (!is_array($payload)) {
-            throw new \RuntimeException('Invalid report payload.');
+            throw new AccessDeniedHttpException('Invalid report payload.');
         }
 
         $html = $this->twig->render('contract/pdf.html.twig', [

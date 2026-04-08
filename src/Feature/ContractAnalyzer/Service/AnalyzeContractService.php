@@ -12,7 +12,7 @@ use App\Feature\ContractAnalyzer\Support\ContractAnalysisPayloadNormalizer;
 use App\Feature\ContractAnalyzer\Support\FakeContractReportFactory;
 use App\Shared\AI\LlmClientInterface;
 use App\Shared\Document\ContractDocumentTextExtractorInterface;
-use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class AnalyzeContractService
 {
@@ -36,7 +36,7 @@ final class AnalyzeContractService
         }
 
         if ($request->file === null) {
-            throw new RuntimeException('Contract file is required.');
+            throw new AccessDeniedHttpException('Contract file is required.');
         }
 
         $documentName = $request->file->getClientOriginalName() ?: 'Contract';
@@ -47,7 +47,7 @@ final class AnalyzeContractService
         $contractText = $this->normalizeText($contractText->content);
 
         if ($contractText === '') {
-            throw new RuntimeException('Could not extract readable text from the uploaded file.');
+            throw new AccessDeniedHttpException('Could not extract readable text from the uploaded file.');
         }
 
         $contractText = $this->truncateText($contractText);
@@ -60,7 +60,7 @@ final class AnalyzeContractService
         $rawPayload = $this->llmClient->generateStructured($prompt);
 
         if (!is_array($rawPayload)) {
-            throw new RuntimeException('Model returned invalid analysis payload.');
+            throw new AccessDeniedHttpException('Model returned invalid analysis payload.');
         }
 
         $normalizedPayload = $this->payloadNormalizer->normalize($rawPayload);

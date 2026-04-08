@@ -7,7 +7,8 @@ namespace App\Feature\Payment\Service;
 use App\Repository\ContractReportRepository;
 use App\Repository\ReportPaymentRepository;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
+
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class VerifyTronPaymentService
@@ -28,7 +29,7 @@ final class VerifyTronPaymentService
         $payment = $this->paymentRepository->findOneById($paymentId);
 
         if ($payment === null) {
-            throw new RuntimeException('Payment not found.');
+            throw new AccessDeniedHttpException('Payment not found.');
         }
 
         if ($payment->getStatus() === 'confirmed') {
@@ -38,7 +39,7 @@ final class VerifyTronPaymentService
         $txHash = $payment->getTxHash();
 
         if ($txHash === null || trim($txHash) === '') {
-            throw new RuntimeException('Transaction hash is required.');
+            throw new AccessDeniedHttpException('Transaction hash is required.');
         }
 
         $existingPayment = $this->paymentRepository->findOneBy([
@@ -46,7 +47,7 @@ final class VerifyTronPaymentService
         ]);
 
         if ($existingPayment !== null && $existingPayment->getId() !== $payment->getId()) {
-            throw new RuntimeException('Transaction hash already used.');
+            throw new AccessDeniedHttpException('Transaction hash already used.');
         }
 
         $url = 'https://apilist.tronscanapi.com/api/transaction-info?hash=' . urlencode($txHash);
@@ -57,19 +58,19 @@ final class VerifyTronPaymentService
         $payload = json_decode($rawBody, true);
 
         if (!is_array($payload)) {
-            throw new RuntimeException('Invalid transaction payload.');
+            throw new AccessDeniedHttpException('Invalid transaction payload.');
         }
 
         //проверка статуса транзакции
         if (($payload['contractRet'] ?? null) !== 'SUCCESS') {
-            throw new RuntimeException('Transaction failed.');
+            throw new AccessDeniedHttpException('Transaction failed.');
         }
 
         // защита от старых транзакций
         $txDate = $this->resolveTransactionTimestamp($payload);
 
         if ($txDate === null) {
-            throw new RuntimeException('Transaction timestamp is missing.');
+            throw new AccessDeniedHttpException('Transaction timestamp is missing.');
         }
 
         $allowedFrom = $payment->getCreatedAt()->modify('-30 minutes');
@@ -87,7 +88,7 @@ final class VerifyTronPaymentService
         $transfers = $payload['trc20TransferInfo'] ?? null;
 
         if (!is_array($transfers)) {
-            throw new RuntimeException('Invalid transaction payload.');
+            throw new AccessDeniedHttpException('Invalid transaction payload.');
         }
 
         foreach ($transfers as $transfer) {
