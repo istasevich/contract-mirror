@@ -81,8 +81,7 @@ final class VerifyTronPaymentService
                 'paymentCreatedAt' => $payment->getCreatedAt()->format(DATE_ATOM),
             ]);
 
-           // throw new RuntimeException('Transaction is too old for this
-            // payment.');
+            throw new AccessDeniedHttpException('Transaction is too old for this payment.');
         }
 
         $transfers = $payload['trc20TransferInfo'] ?? null;
