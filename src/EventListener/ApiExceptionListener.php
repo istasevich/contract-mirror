@@ -16,7 +16,7 @@ final class ApiExceptionListener
 
         if ($exception instanceof ReportLockedException && !$this->isApi($request)) {
             $event->setResponse(new Response(
-                '<h1>🔒 Report is locked</h1><p>Please unlock to download PDF.</p>',
+                "<h1>🔒 ". $exception->getMessage() . "</h1>",
                 403
             ));
             return;
