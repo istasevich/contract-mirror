@@ -1,3 +1,12 @@
+{% set isDemo = isDemo ?? false %}
+
+
+{% if isDemo %}
+    <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-300 text-sm">
+        ⚡ Demo report — upload your contract to analyze your own
+    </div>
+{% endif %}
+
 <div class="flex flex-col gap-6">
 
     {% include 'contract/_report_header.html.twig' with {
@@ -13,43 +22,29 @@
     </div>
 
     {% if isLocked %}
-        <div class="relative mt-6">
-            <div class="blur-sm pointer-events-none opacity-60">
-                {% for issue in report.issues|slice(2) %}
-                    {% include 'contract/_report_issue_card.html.twig' %}
-                {% endfor %}
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 text-amber-200 text-sm">
+            This contract contains {{ report.issues|length }} risks — only 2 are shown in the free version.
+        </div>
 
-                {% for item in report.missingProtections %}
-                    {% include 'contract/_report_missing_protection_card.html.twig' with {
-                        protection: item
-                    } %}
-                {% endfor %}
-            </div>
+        {% include 'contract/_paywall.html.twig' with { publicId: publicId } %}
 
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 text-center max-w-md">
-                    <div class="text-xl font-bold text-white mb-2">
-                        🔓 Unlock full analysis
-                    </div>
+        <div class="flex flex-col gap-4 blur-sm pointer-events-none opacity-50 select-none">
+            {% for issue in report.issues|slice(2) %}
+                {% include 'contract/_report_issue_card.html.twig' %}
+            {% endfor %}
 
-                    <div class="text-sm text-slate-400 mb-4">
-                        See all risks, safer wording, and download a clean PDF
-                    </div>
+            {% for item in report.missingProtections %}
+                {% include 'contract/_report_missing_protection_card.html.twig' with {
+                    protection: item
+                } %}
+            {% endfor %}
+        </div>
 
-                    {% if payment %}
-                        <button
-                            onclick="openPaymentModal()"
-                            class="bg-violet-500 hover:bg-violet-600 text-white px-6 py-3 rounded-xl font-bold"
-                        >
-                            Unlock for {{ payment.amount }} {{ payment.currency }}
-                        </button>
-                    {% else %}
-                        <div class="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                            Payment is unavailable right now. Please refresh the page.
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="mt-8 text-center">
+            <a href="https://gumroad.com/l/xekca?wanted=true&custom={{ publicId }}"
+               class="inline-block bg-violet-500 hover:bg-violet-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                Get full analysis for $5
+            </a>
         </div>
     {% else %}
         <div class="flex flex-col gap-4 mt-6">
@@ -66,46 +61,3 @@
     {% endif %}
 
 </div>
-
-{% if isLocked and payment %}
-    <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-        <div class="w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-white/10">
-            <h2 class="text-xl font-bold text-white mb-4">
-                🔓 Unlock full report
-            </h2>
-
-            <p class="text-slate-400 mb-4">
-                Send <strong>{{ payment.amount }} {{ payment.currency }}</strong>
-            </p>
-
-            <div class="bg-black/40 rounded-xl p-3 text-center text-green-400 font-mono text-sm break-all">
-                {{ payment.address }}
-            </div>
-
-            <p class="text-xs text-slate-500 mt-2 text-center">
-                Network: TRC20
-            </p>
-
-            <input
-                id="tx-hash-input"
-                type="text"
-                placeholder="Paste transaction hash"
-                class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white"
-            />
-
-            <button
-                onclick="submitPayment()"
-                class="mt-4 w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-bold"
-            >
-                Submit payment
-            </button>
-
-            <button
-                onclick="closePaymentModal()"
-                class="mt-2 w-full text-sm text-slate-400"
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-{% endif %}

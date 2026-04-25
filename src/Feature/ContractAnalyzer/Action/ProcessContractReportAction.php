@@ -32,7 +32,7 @@ final class ProcessContractReportAction
      * @throws RuntimeError
      * @throws LoaderError
      */
-    public function execute(AnalyzeContractRequest $request): ProcessContractReportResultDto
+    public function execute(AnalyzeContractRequest $request, bool $isAllowed = false): ProcessContractReportResultDto
     {
         $reportView = $this->analyzeContractService->handle($request);
 
@@ -42,12 +42,16 @@ final class ProcessContractReportAction
             language: $request->preferredLanguage,
         );
 
+        if ($isAllowed) {
+            $storedReport->unlock();
+        }
+
         $payment = $this->createReportPaymentService->handle($storedReport);
 
         $html = $this->twig->render('contract/_report.html.twig', [
             'report' => $reportView,
             'publicId' => $storedReport->getPublicId(),
-            'isLocked' => true,
+            'isLocked' => $storedReport->isLocked(),
             'payment' => [
                 'paymentId' => $payment->getId(),
                 'address' => $payment->getWalletAddress(),

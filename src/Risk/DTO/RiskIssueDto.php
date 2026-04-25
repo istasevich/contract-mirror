@@ -11,9 +11,12 @@ final readonly class RiskIssueDto
         public RiskSeverityEnum $severity,
         public string $category,
         public ?string $clauseExcerpt,
-        public string $explanation,
+
+        public string $plainExplanation,
         public string $whyItMatters,
-        public string $suggestedFix,
+        public string $impact,
+        public string $riskLevelExplanation,
+        public string $suggestedRewrite,
     ) {
         // Nothing
     }
@@ -25,12 +28,18 @@ final readonly class RiskIssueDto
     {
         return new self(
             title: (string) ($payload['title'] ?? ''),
-            severity: RiskSeverityEnum::from((string) ($payload['severity'] ?? 'low')),
+            severity: RiskSeverityEnum::from(strtoupper((string) ($payload['severity'] ?? 'LOW'))),
             category: (string) ($payload['category'] ?? 'other'),
-            clauseExcerpt: isset($payload['clause_excerpt']) ? (string) $payload['clause_excerpt'] : null,
-            explanation: (string) ($payload['explanation'] ?? ''),
+
+            clauseExcerpt: isset($payload['original_clause'])
+                ? (string) $payload['original_clause']
+                : null,
+
+            plainExplanation: (string) ($payload['plain_explanation'] ?? ''),
             whyItMatters: (string) ($payload['why_it_matters'] ?? ''),
-            suggestedFix: (string) ($payload['suggested_fix'] ?? ''),
+            impact: (string) ($payload['impact'] ?? ''),
+            riskLevelExplanation: (string) ($payload['risk_level_explanation'] ?? ''),
+            suggestedRewrite: (string) ($payload['suggested_rewrite'] ?? ''),
         );
     }
 }

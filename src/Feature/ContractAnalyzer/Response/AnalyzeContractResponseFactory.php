@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Feature\ContractAnalyzer\Response;
 
@@ -12,23 +14,37 @@ final class AnalyzeContractResponseFactory
         return new JsonResponse([
             'documentType' => $report->documentType,
             'language' => $report->language,
+
             'summary' => $report->summary,
             'riskScore' => $report->riskScore,
             'overallRiskLevel' => $report->overallRiskLevel->value,
+
+            'riskSummary' => $report->riskSummary,
+
             'issues' => array_map(static fn ($issue) => [
                 'title' => $issue->title,
                 'severity' => $issue->severity->value,
                 'category' => $issue->category,
+
                 'clauseExcerpt' => $issue->clauseExcerpt,
-                'explanation' => $issue->explanation,
+
+                // 🔥 ключевые продающие поля
+                'plainExplanation' => $issue->plainExplanation,
                 'whyItMatters' => $issue->whyItMatters,
-                'suggestedFix' => $issue->suggestedFix,
+                'impact' => $issue->impact,
+
+                'riskExplanation' => $issue->riskLevelExplanation,
+
+                'suggestedRewrite' => $issue->suggestedRewrite,
             ], $report->issues),
+
             'missingProtections' => array_map(static fn ($item) => [
                 'title' => $item->title,
-                'explanation' => $item->explanation,
+                'category' => $item->category ?? null,
+                'whyItMatters' => $item->whyItMatters,
                 'suggestedClause' => $item->suggestedClause,
             ], $report->missingProtections),
+
             'finalRecommendation' => $report->finalRecommendation,
         ]);
     }

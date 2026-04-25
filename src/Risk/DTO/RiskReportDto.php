@@ -16,6 +16,7 @@ final readonly class RiskReportDto
         public string $summary,
         public int $riskScore,
         public OverallRiskLevelEnum $overallRiskLevel,
+        public string $riskSummary,
         public array $issues,
         public array $missingProtections,
         public string $finalRecommendation,

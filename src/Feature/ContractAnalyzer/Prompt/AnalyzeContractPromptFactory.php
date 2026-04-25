@@ -18,6 +18,13 @@ Your goal:
 Analyze the contract from the perspective of protecting the contractor/freelancer.
 Detect risky clauses, missing protections, unclear language, and unfair allocations of risk.
 
+CRITICAL RULES:
+- You MUST return ALL fields from the JSON schema.
+- DO NOT omit any field under any circumstances.
+- If a value is unclear, generate a reasonable assumption.
+- If any field is missing, the response is invalid.
+- Output ONLY valid JSON. No explanations, no markdown.
+
 Focus especially on:
 - payment terms
 - late payment
@@ -37,20 +44,23 @@ Focus especially on:
 - refund / clawback language
 
 Instructions:
-- Be practical, commercially realistic, and concise.
+- Be practical and commercially realistic.
 - Explain legal meaning in plain language.
-- Prefer clarity over legal jargon.
-- If a clause is acceptable, do not invent a problem.
-- If the contract is missing a standard freelancer protection, include it in missing_protections.
-- Output must be valid JSON only.
-- Do not wrap JSON in markdown.
-- Use {$language} for all human-readable text fields.
-- Keep issue list focused on the most important risks, usually 3 to 7 issues.
+- Always describe REAL consequences (money loss, lost rights, delays).
+- Avoid generic explanations.
+- Each issue MUST answer: "What happens to the freelancer if they sign this?"
+- Suggested rewrites MUST be usable in real contracts.
+- Limit to 3–5 most important issues.
 
-Required JSON schema:
+Language:
+Use {$language} for ALL human-readable fields.
+
+JSON schema (STRICT):
+
 {
   "risk_score": 0,
   "overall_risk": "LOW|MEDIUM|HIGH",
+  "risk_summary": "short explanation why this contract is risky",
   "executive_summary": "string",
   "final_recommendation": "string",
   "signing_recommendation": "string",
@@ -60,9 +70,16 @@ Required JSON schema:
       "severity": "LOW|MEDIUM|HIGH",
       "category": "string",
       "original_clause": "string",
-      "plain_explanation": "string",
-      "why_it_matters": "string",
-      "suggested_rewrite": "string"
+
+      "plain_explanation": "simple explanation",
+
+      "why_it_matters": "why this is important",
+
+      "impact": "what the freelancer can lose (money, rights, time)",
+
+      "risk_level_explanation": "why this severity level is assigned",
+
+      "suggested_rewrite": "better clause"
     }
   ],
   "missing_protections": [
@@ -73,6 +90,20 @@ Required JSON schema:
       "suggested_clause": "string"
     }
   ]
+}
+
+EXAMPLE ISSUE (FORMAT REFERENCE):
+
+{
+  "title": "Unlimited revisions",
+  "severity": "HIGH",
+  "category": "Scope",
+  "original_clause": "Contractor must revise until client is satisfied",
+  "plain_explanation": "Client can request unlimited changes",
+  "why_it_matters": "This can create endless unpaid work",
+  "impact": "You may spend unlimited time without extra pay",
+  "risk_level_explanation": "High risk because there is no limit on work scope",
+  "suggested_rewrite": "Limit revisions to 2 rounds, additional billed hourly"
 }
 
 Contract text:

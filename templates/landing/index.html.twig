@@ -169,7 +169,7 @@
                         </div>
 
                         <div id="form-status" class="mt-5 hidden rounded-2xl border px-4 py-3 text-sm"></div>
-
+                        <div id="usage-counter" class="mt-3 text-sm text-slate-400 text-center"></div>
                         <p class="mt-5 text-xs uppercase tracking-[0.24em] text-slate-500">
                             Informational AI analysis. Not legal advice.
                         </p>
@@ -402,67 +402,8 @@
     </section>
 </main>
 
-<div
-    id="payment-modal"
-    class="hidden fixed inset-0 z-[100] overflow-y-auto bg-black/70 px-4 py-6 sm:py-10"
->
-    <div class="flex min-h-full items-start justify-center sm:items-center">
-        <div
-            id="payment-modal-dialog"
-            tabindex="-1"
-            class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl"
-        >
-            <h2 class="mb-4 text-xl font-bold text-white">🔓 Unlock full report</h2>
-
-            <p class="mb-4 text-slate-400">
-                Pay <strong id="payment-modal-amount-text">9.00 USDT</strong> to unlock:
-            </p>
-
-            <ul class="mb-6 space-y-1 text-sm text-slate-300">
-                <li>• Full clause breakdown</li>
-                <li>• Safer wording</li>
-                <li>• Missing protections</li>
-                <li>• PDF export</li>
-            </ul>
-
-            <div id="payment-modal-address" class="break-all rounded-xl bg-black/40 p-3 text-center font-mono text-sm text-green-400">
-                {{ initialPayment.address|default('Wallet address will appear after report generation') }}
-            </div>
-
-            <p class="mt-2 text-center text-xs text-slate-500">
-                Network: TRC20
-            </p>
-
-            <input
-                id="tx-hash-input"
-                type="text"
-                placeholder="Paste transaction hash"
-                class="mt-4 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-            />
-
-            <button
-                onclick="submitPayment()"
-                class="mt-4 w-full rounded-xl bg-violet-500 py-3 font-bold text-white hover:bg-violet-600"
-            >
-                Submit payment
-            </button>
-
-            <button
-                onclick="closePaymentModal()"
-                class="mt-2 w-full text-sm text-slate-400"
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-</div>
-
 <script>
     window.currentReportId = {{ initialPublicId is defined ? initialPublicId|json_encode|raw : 'null' }};
-    window.currentPaymentId = {{ initialPayment is defined and initialPayment ? initialPayment.paymentId|json_encode|raw : 'null' }};
-    window.currentPaymentAddress = {{ initialPayment is defined and initialPayment ? initialPayment.address|json_encode|raw : 'null' }};
-    window.currentPaymentAmount = {{ initialPayment is defined and initialPayment ? initialPayment.amount|json_encode|raw : 'null' }};
-    window.currentPaymentCurrency = {{ initialPayment is defined and initialPayment ? initialPayment.currency|json_encode|raw : 'null' }};
 </script>
 
 <script src="/assets/contract-analyzer.js"></script>

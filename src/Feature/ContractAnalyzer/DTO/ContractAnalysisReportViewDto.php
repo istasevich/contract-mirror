@@ -14,6 +14,7 @@ final readonly class ContractAnalysisReportViewDto
         public string $language,
         public int $riskScore,
         public string $overallRisk,
+        public string $riskSummary,
         public string $executiveSummary,
         public string $finalRecommendation,
         public string $signingRecommendation,

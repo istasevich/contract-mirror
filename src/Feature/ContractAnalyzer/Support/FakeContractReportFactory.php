@@ -16,49 +16,87 @@ final class FakeContractReportFactory
             documentName: 'Freelance Service Agreement.pdf',
             documentType: 'PDF',
             language: 'English',
+
             riskScore: 74,
             overallRisk: 'HIGH',
+
+            riskSummary: 'High risk due to vague payment terms, unlimited revisions, and lack of contractor protection in termination and IP clauses.',
+
             executiveSummary: 'This contract contains several freelancer-unfriendly terms, especially around revisions, termination, liability, and IP transfer. The payment language is vague, and the client has too much discretion over acceptance. It should not be signed as-is without revisions.',
+
             finalRecommendation: 'Sign only after edits',
             signingRecommendation: 'Push back on unlimited revisions, require clear payment deadlines, limit liability, and make IP transfer conditional on full payment.',
+
             issues: [
                 new ContractIssueViewDto(
                     title: 'Unlimited revisions',
                     severity: 'HIGH',
                     category: 'Scope / Revisions',
                     originalClause: 'Contractor agrees to revise the work until the Client is satisfied.',
+
                     plainExplanation: 'The client can keep asking for changes with no clear limit.',
+
                     whyItMatters: 'This can create endless extra work without extra pay.',
+
+                    impact: 'You may spend significantly more time than planned and still be forced to continue working without additional compensation.',
+
+                    riskExplanation: 'This is high risk because it gives the client unlimited control over your workload with no defined limits.',
+
                     suggestedRewrite: 'The agreed fee includes up to 2 revision rounds. Additional revisions are billed separately at the contractor’s standard hourly rate.'
                 ),
+
                 new ContractIssueViewDto(
                     title: 'Vague payment deadline',
                     severity: 'MEDIUM',
                     category: 'Payment',
                     originalClause: 'Client agrees to pay Contractor within a reasonable time after delivery.',
+
                     plainExplanation: 'The contract does not define when payment is actually due.',
+
                     whyItMatters: 'A vague deadline makes delayed payment harder to challenge.',
+
+                    impact: 'You may experience delayed payments with no clear legal basis to enforce timely payment.',
+
+                    riskExplanation: 'This is medium risk because unclear timelines create friction and weaken your ability to enforce payment.',
+
                     suggestedRewrite: 'Client shall pay all undisputed invoices within 7 calendar days of receipt.'
                 ),
+
                 new ContractIssueViewDto(
                     title: 'Immediate IP transfer',
                     severity: 'HIGH',
                     category: 'Intellectual Property',
                     originalClause: 'All work produced shall become the sole property of the Client immediately upon creation.',
+
                     plainExplanation: 'Ownership transfers before the contractor is paid.',
+
                     whyItMatters: 'The client may get the work product even if payment is delayed or never made.',
+
+                    impact: 'You could lose ownership of your work and still not get paid for it.',
+
+                    riskExplanation: 'This is high risk because it removes your leverage — the client owns the work regardless of payment.',
+
                     suggestedRewrite: 'Ownership transfers to Client only after full payment of all amounts due under this Agreement.'
                 ),
+
                 new ContractIssueViewDto(
                     title: 'One-sided termination',
                     severity: 'HIGH',
                     category: 'Termination',
                     originalClause: 'Client may terminate this agreement at any time without prior notice.',
+
                     plainExplanation: 'The client can walk away immediately with no protection for the contractor.',
+
                     whyItMatters: 'You may lose expected revenue and time already invested.',
+
+                    impact: 'You may suddenly lose the project and income with no compensation for work already planned or started.',
+
+                    riskExplanation: 'This is high risk because it puts all control in the client’s hands without protecting your time or income.',
+
                     suggestedRewrite: 'Either party may terminate on 14 days’ written notice. Client remains responsible for payment for all work performed up to the termination date.'
                 ),
             ],
+
             missingProtections: [
                 new MissingProtectionViewDto(
                     title: 'No late payment protection',
@@ -66,6 +104,7 @@ final class FakeContractReportFactory
                     whyItMatters: 'There is no consequence for delayed payment, which weakens enforcement.',
                     suggestedClause: 'Late payments accrue interest at 1.5% per month or the maximum amount permitted by law, whichever is lower.'
                 ),
+
                 new MissingProtectionViewDto(
                     title: 'No liability cap',
                     category: 'Liability',

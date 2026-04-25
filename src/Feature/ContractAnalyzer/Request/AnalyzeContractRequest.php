@@ -17,6 +17,8 @@ final readonly class AnalyzeContractRequest
         #[Assert\NotBlank]
         #[Assert\Length(max: 16)]
         public string $preferredLanguage = 'English',
+
+        public bool $isFreeAllowed = false,
     ) {
         // Nothing
     }

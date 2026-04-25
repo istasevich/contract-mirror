@@ -92,7 +92,42 @@ async function pollPaymentStatus() {
         }
     }, 5000);
 }
+async function showPaywall(payload) {
+    const reportContent = document.getElementById('report-content');
+    const reportLoadingState = document.getElementById('report-loading-state');
 
+    const publicId = window.currentReportId || '';
+
+    const response = await fetch(`/api/paywall/${publicId}`);
+    reportContent.innerHTML = await response.text();
+
+    reportLoadingState.classList.add('hidden');
+    reportContent.classList.remove('hidden');
+}
+
+function startPaymentPolling(publicId) {
+    if (!publicId) return;
+
+    console.log('Start polling for:', publicId);
+
+    const interval = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/reports/${publicId}/status`);
+            const data = await res.json();
+
+            console.log('Polling:', data);
+
+            if (!data.isLocked) {
+                clearInterval(interval);
+
+                console.log('UNLOCKED');
+                location.reload();
+            }
+        } catch (e) {
+            console.error('Polling error', e);
+        }
+    }, 3000);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('analyze-contract-form');
@@ -210,12 +245,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const payload = await response.json();
 
+            if (payload.usage) {
+                const counter = document.getElementById('usage-counter');
+
+                if (counter) {
+                    const { remaining } = payload.usage;
+
+                    counter.innerText = `Free analyses left: ${remaining} / 5`;
+
+                    if (remaining <= 1) {
+                        counter.classList.add('text-orange-400');
+                    }
+
+                    if (remaining === 0) {
+                        counter.classList.remove('text-orange-400');
+                        counter.classList.add('text-red-400');
+                    }
+                }
+            }
+
+            window.currentReportId = payload.publicId || null;
+
+            if (response.status === 403 && payload.error === 'Free limit reached') {
+
+                if (payload.publicId) {
+                    window.history.pushState({}, '', `/r/${payload.publicId}`);
+                }
+
+                showPaywall(payload);
+                startPaymentPolling(window.currentReportId);
+                return;
+            }
+
+
             if (!response.ok || !payload.success) {
                 throw new Error(payload.message || 'Failed to analyze the contract.');
             }
 
             window.currentPaymentId = payload.payment?.paymentId || null;
-            window.currentReportId = payload.publicId || null;
             window.currentPaymentAddress = payload.payment?.address || null;
             window.currentPaymentAmount = payload.payment?.amount || null;
             window.currentPaymentCurrency = payload.payment?.currency || null;
@@ -228,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (paymentAmountText) {
-                const amount = window.currentPaymentAmount || '9.00';
+                const amount = window.currentPaymentAmount || '5.00';
                 const currency = window.currentPaymentCurrency || 'USDT';
                 paymentAmountText.textContent = `${amount} ${currency}`;
             }
