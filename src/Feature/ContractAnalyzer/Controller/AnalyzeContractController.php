@@ -48,7 +48,7 @@ final class AnalyzeContractController extends AbstractController
 
             $usage = [
                 'used' => $count,
-                'remaining' => max(0, 5 - $count),
+                'remaining' => max(0,  IpUsageLimiter::LIMIT - $count),
             ];
 
             if (!$isAllowed) {

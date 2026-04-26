@@ -9,7 +9,7 @@ use Psr\Cache\CacheItemPoolInterface;
 final class IpUsageLimiter
 {
     private const string KEY_PREFIX = 'contract_analysis_';
-    private const int LIMIT = 3;
+    public const int LIMIT = 3;
     private const int TTL = 86400;
 
     public function __construct(
