@@ -1,12 +1,13 @@
+version: '3.9'
+
 services:
     php:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: contractmirror_php
         working_dir: /var/www/html
         env_file:
-            -   .env.prod
+            - .env.prod
         environment:
             APP_ENV: prod
             APP_SECRET: ${APP_SECRET}
@@ -15,16 +16,19 @@ services:
             DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=16&charset=utf8
             CRYPTO_WALLET_ADDRESS: ${CRYPTO_WALLET_ADDRESS}
             USDT_TRON_CONTRACT_ADDRESS: ${USDT_TRON_CONTRACT_ADDRESS}
+            REDIS_URL: redis://redis:6379
         volumes:
             - ./:/var/www/html
             - ./var:/var/www/html/var
         depends_on:
             database:
                 condition: service_healthy
+            redis:
+                condition: service_started
+        restart: unless-stopped
 
     nginx:
         image: nginx:1.27-alpine
-        container_name: contractmirror_nginx
         ports:
             - "80:80"
             - "443:443"
@@ -34,10 +38,10 @@ services:
             - ./docker/nginx/default.prod.conf:/etc/nginx/conf.d/default.conf:ro
         depends_on:
             - php
+        restart: unless-stopped
 
     database:
         image: postgres:16-alpine
-        container_name: contractmirror_database
         environment:
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -46,15 +50,17 @@ services:
             test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
             timeout: 5s
             retries: 5
-            start_period: 60s
+            start_period: 10s
         volumes:
             - database_data:/var/lib/postgresql/data:rw
+        restart: unless-stopped
+
     redis:
         image: redis:7-alpine
-        container_name: contractmirror_redis
-        restart: always
-        ports:
-            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        restart: unless-stopped
 
 volumes:
     database_data:
+    redis_data:
