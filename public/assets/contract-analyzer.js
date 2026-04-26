@@ -114,6 +114,7 @@ async function showPaywall(payload) {
 
     reportLoadingState.classList.add('hidden');
     reportContent.classList.remove('hidden');
+    gtag('event', 'paywall_shown');
 }
 
 function startPaymentPolling(publicId) {
@@ -129,6 +130,10 @@ function startPaymentPolling(publicId) {
             console.log('Polling:', data);
 
             if (!data.isLocked) {
+                gtag('event', 'purchase', {
+                    value: 5,
+                    currency: 'USD'
+                });
                 clearInterval(interval);
 
                 console.log('UNLOCKED');
@@ -229,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', async function (event) {
         event.preventDefault();
-
+        gtag('event', 'upload_contract');
         if (!input.files || !input.files.length) {
             setFormStatus('Please choose a contract file first.', 'error');
             return;
