@@ -33,10 +33,10 @@ RUN apk add --no-cache \
         pdo \
         pdo_pgsql \
         gd \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && apk del $PHPIZE_DEPS
 
-RUN pecl install redis \
-    && docker-php-ext-enable redis
 
 RUN npm install puppeteer --omit=dev
 
