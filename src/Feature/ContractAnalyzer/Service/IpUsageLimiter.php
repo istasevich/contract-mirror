@@ -8,81 +8,81 @@ use Psr\Cache\CacheItemPoolInterface;
 
 final class IpUsageLimiter
 {
-    private const string KEY_PREFIX = 'contract_analysis_ip_';
-    private const int LIMIT = 5;
+    private const string KEY_PREFIX = 'contract_analysis_';
+    private const int LIMIT = 3;
     private const int TTL = 86400;
 
     public function __construct(
         private readonly CacheItemPoolInterface $cache
     ) {
+        // Nothing
     }
 
-    public function isAllowed(string $ip): bool
+    public function isAllowed(string $ip, string $visitorId): bool
     {
-        if ($this->isPaid($ip)) {
+        if ($this->isPaid($ip, $visitorId)) {
             return true;
         }
 
-        $item = $this->cache->getItem($this->getCacheKey($ip));
+        $item = $this->cache->getItem($this->getCacheKey($ip, $visitorId));
 
         if (!$item->isHit()) {
             return true;
         }
 
-        return (int) $item->get() < self::LIMIT;
+        return (int)$item->get() < self::LIMIT;
     }
 
-    public function increment(string $ip): void
+    public function increment(string $ip, string $visitorId): void
     {
-        $item = $this->cache->getItem($this->getCacheKey($ip));
+        $item = $this->cache->getItem($this->getCacheKey($ip, $visitorId));
 
         if (!$item->isHit()) {
             $item->set(1);
             $item->expiresAfter(self::TTL);
         } else {
-            $count = (int) $item->get();
+            $count = (int)$item->get();
             $item->set($count + 1);
-            // TTL is only set on first call as per requirements
         }
 
         $this->cache->save($item);
     }
 
-    public function isPaid(string $ip): bool
+    public function getCount(string $ip, string $visitorId): int
     {
-        $item = $this->cache->getItem($this->getPaidKey($ip));
-
-        return $item->isHit() && $item->get() === true;
-    }
-
-    public function markAsPaid(string $ip): void
-    {
-        $item = $this->cache->getItem($this->getPaidKey($ip));
-        $item->set(true);
-        $item->expiresAfter(self::TTL);
-
-        $this->cache->save($item);
-    }
-
-
-    private function getPaidKey(string $ip): string
-    {
-        return self::KEY_PREFIX . 'paid_' . md5($ip);
-    }
-
-    private function getCacheKey(string $ip): string
-    {
-        return self::KEY_PREFIX . md5($ip);
-    }
-
-    public function getCount(string $ip): int
-    {
-        $item = $this->cache->getItem($this->getCacheKey($ip));
+        $item = $this->cache->getItem($this->getCacheKey($ip, $visitorId));
 
         if (!$item->isHit()) {
             return 0;
         }
 
-        return (int) $item->get();
+        return (int)$item->get();
+    }
+
+    public function isPaid(string $ip, string $visitorId): bool
+    {
+        $item = $this->cache->getItem($this->getPaidKey($ip, $visitorId));
+
+        return $item->isHit() && $item->get() === true;
+    }
+
+    public function markAsPaid(string $ip, string $visitorId): void
+    {
+        $item = $this->cache->getItem($this->getPaidKey($ip, $visitorId));
+        $item->set(true);
+
+        $item->expiresAfter(8 * 86400); // 8 дней отчет доступен
+
+        $this->cache->save($item);
+    }
+
+    private function getCacheKey(string $ip, string $visitorId): string
+    {
+        return self::KEY_PREFIX . 'usage_' . md5($ip . ':' . $visitorId);
+    }
+
+    private function getPaidKey(string $ip, string $visitorId): string
+    {
+        return self::KEY_PREFIX . 'paid_' . md5($ip . ':' . $visitorId);
     }
 }

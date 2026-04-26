@@ -92,6 +92,17 @@ async function pollPaymentStatus() {
         }
     }, 5000);
 }
+
+function getVisitorId() {
+    let id = localStorage.getItem('vid');
+
+    if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('vid', id);
+    }
+
+    return id;
+}
 async function showPaywall(payload) {
     const reportContent = document.getElementById('report-content');
     const reportLoadingState = document.getElementById('report-loading-state');
@@ -231,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportEmptyState.classList.add('hidden');
         reportContent.classList.add('hidden');
         reportLoadingState.classList.remove('hidden');
+        const visitorId = getVisitorId();
 
         try {
             const formData = new FormData(form);
@@ -240,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-Visitor-Id': visitorId
                 },
             });
 
@@ -251,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (counter) {
                     const { remaining } = payload.usage;
 
-                    counter.innerText = `Free analyses left: ${remaining} / 5`;
+                    counter.innerText = `Free analyses left: ${remaining} / 3`;
 
                     if (remaining <= 1) {
                         counter.classList.add('text-orange-400');

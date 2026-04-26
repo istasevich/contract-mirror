@@ -29,7 +29,10 @@ final class AnalyzeContractController extends AbstractController
     public function __invoke(Request $request): JsonResponse
     {
         $ip = $request->getClientIp() ?? 'unknown';
-        $isAllowed = $this->ipUsageLimiter->isAllowed($ip);
+        $visitorId = $request->headers->get('X-Visitor-Id', 'unknown');
+
+        $isAllowed = $this->ipUsageLimiter->isAllowed($ip, $visitorId);
+
 
         try {
             $input = AnalyzeContractRequest::fromRequest($request);
@@ -38,10 +41,10 @@ final class AnalyzeContractController extends AbstractController
             $result = $this->processContractReportAction->execute($input, $isAllowed);
 
             if ($isAllowed) {
-                $this->ipUsageLimiter->increment($ip);
+                $this->ipUsageLimiter->increment($ip, $visitorId);
             }
 
-            $count = $this->ipUsageLimiter->getCount($ip);
+            $count = $this->ipUsageLimiter->getCount($ip, $visitorId);
 
             $usage = [
                 'used' => $count,

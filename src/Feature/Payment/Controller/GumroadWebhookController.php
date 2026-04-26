@@ -34,6 +34,7 @@ final class GumroadWebhookController extends AbstractController
         $params = $data['url_params'] ?? [];
 
         $publicId = $params['custom'] ?? null;
+        //$visitorId = $data['custom_visitor'] ?? null;
 
         if (!$publicId) {
             return new Response('No publicId', 200);
