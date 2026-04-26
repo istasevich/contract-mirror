@@ -48,6 +48,12 @@ services:
             start_period: 60s
         volumes:
             - database_data:/var/lib/postgresql/data:rw
+    redis:
+        image: redis:7-alpine
+        container_name: contractmirror_redis
+        restart: always
+        ports:
+            - "6379:6379"
 
 volumes:
     database_data:
