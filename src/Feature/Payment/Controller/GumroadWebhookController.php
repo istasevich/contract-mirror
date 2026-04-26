@@ -39,6 +39,12 @@ final class GumroadWebhookController extends AbstractController
             return new Response('No publicId', 200);
         }
 
+        $expectedSellerId = 'W8RPbbVj0hvA2SD6bckxdg==';
+
+        if (($data['seller_id'] ?? null) !== $expectedSellerId) {
+            return new Response('Invalid seller', 403);
+        }
+
         $report = $this->reportRepository->findOneByPublicId($publicId);
 
         if (!$report) {

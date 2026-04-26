@@ -17,6 +17,7 @@ services:
             USDT_TRON_CONTRACT_ADDRESS: ${USDT_TRON_CONTRACT_ADDRESS}
         volumes:
             - ./:/var/www/html
+            - ./var:/var/www/html/var
         depends_on:
             database:
                 condition: service_healthy

@@ -30,12 +30,6 @@ final class AnalyzeContractController extends AbstractController
     {
         $ip = $request->getClientIp() ?? 'unknown';
         $isAllowed = $this->ipUsageLimiter->isAllowed($ip);
-        $count = $this->ipUsageLimiter->getCount($ip);
-
-        $usage = [
-            'used' => $count,
-            'remaining' => max(0, 5 - $count),
-        ];
 
         try {
             $input = AnalyzeContractRequest::fromRequest($request);
@@ -46,6 +40,13 @@ final class AnalyzeContractController extends AbstractController
             if ($isAllowed) {
                 $this->ipUsageLimiter->increment($ip);
             }
+
+            $count = $this->ipUsageLimiter->getCount($ip);
+
+            $usage = [
+                'used' => $count,
+                'remaining' => max(0, 5 - $count),
+            ];
 
             if (!$isAllowed) {
                 return $this->json([

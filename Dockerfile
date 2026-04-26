@@ -35,6 +35,13 @@ RUN apk add --no-cache \
         gd \
     && apk del $PHPIZE_DEPS
 
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+RUN npm install puppeteer --omit=dev
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
