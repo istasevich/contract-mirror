@@ -26,6 +26,10 @@ services:
         $walletAddress: '%app.crypto.wallet_address%'
         $usdtContractAddress: '%app.crypto.usdt_tron_contract%'
 
+  App\Feature\ContractAnalyzer\Service\IpUsageLimiter:
+      arguments:
+          $cache: '@cache.app'
+
   monolog.logger.openai:
       class: Psr\Log\LoggerInterface
       factory: [ '@monolog.logger', 'get' ]
