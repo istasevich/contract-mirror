@@ -50,10 +50,17 @@ services:
             - database_data:/var/lib/postgresql/data:rw
     redis:
         image: redis:7-alpine
-        container_name: contractmirror_redis
-        restart: always
-        ports:
-            - "6379:6379"
+        command: >
+            redis-server
+            --appendonly yes
+            --protected-mode yes
+            --bind 0.0.0.0
+            --requirepass ${REDIS_PASSWORD}
+        expose:
+            - "6379"
+        volumes:
+            - redis_data:/data
+        restart: unless-stopped
 
 volumes:
     database_data:
