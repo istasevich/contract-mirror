@@ -57,11 +57,16 @@ services:
 
     redis:
         image: redis:7-alpine
-        command: >
-            redis-server
-            --appendonly yes
-            --protected-mode yes
-            --bind 0.0.0.0
+        command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --protected-mode
+            - "yes"
+            - --bind
+            - 0.0.0.0
+            - --requirepass
+            - ${REDIS_PASSWORD}
         expose:
             - "6379"
         volumes:
