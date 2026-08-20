@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Shared\Exception\ReportLockedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
@@ -16,7 +19,7 @@ final class ApiExceptionListener
 
         if ($exception instanceof ReportLockedException && !$this->isApi($request)) {
             $event->setResponse(new Response(
-                "<h1>🔒 ". $exception->getMessage() . "</h1>",
+                '<h1>Report locked</h1>',
                 403
             ));
             return;
@@ -30,8 +33,8 @@ final class ApiExceptionListener
         }
     }
 
-    private function isApi($request): bool
+    private function isApi(Request $request): bool
     {
-        return str_contains($request->headers->get('Accept'), 'application/json');
+        return str_contains((string) $request->headers->get('Accept'), 'application/json');
     }
 }

@@ -6,7 +6,6 @@ namespace App\Feature\Payment\Service;
 
 use App\Entity\ReportPayment;
 use App\Repository\ReportPaymentRepository;
-use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class SubmitPaymentHashService

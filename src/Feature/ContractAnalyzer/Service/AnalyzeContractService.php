@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Feature\ContractAnalyzer\Service;
 
-use App\Feature\ContractAnalyzer\Dto\ContractAnalysisReportViewDto;
+use App\Feature\ContractAnalyzer\DTO\ContractAnalysisReportViewDto;
 use App\Feature\ContractAnalyzer\Mapper\ContractAnalysisViewMapper;
-use App\Feature\ContractAnalyzer\Request\AnalyzeContractRequest;
 use App\Feature\ContractAnalyzer\Prompt\AnalyzeContractPromptFactory;
+use App\Feature\ContractAnalyzer\Request\AnalyzeContractRequest;
 use App\Feature\ContractAnalyzer\Support\ContractAnalysisPayloadNormalizer;
 use App\Feature\ContractAnalyzer\Support\FakeContractReportFactory;
 use App\Shared\AI\LlmClientInterface;
@@ -25,13 +25,15 @@ final class AnalyzeContractService
         protected LlmClientInterface $llmClient,
         protected ContractAnalysisPayloadNormalizer $payloadNormalizer,
         protected ContractAnalysisViewMapper $viewMapper,
+        private readonly bool $fakeReportEnabled,
+        private readonly string $environment,
     ) {
         // Nothing
     }
 
     public function handle(AnalyzeContractRequest $request): ContractAnalysisReportViewDto
     {
-        if ($_ENV['CONTRACT_MIRROR_FAKE_REPORT'] ?? false) {
+        if ($this->fakeReportEnabled && in_array($this->environment, ['dev', 'test'], true)) {
             return $this->fakeContractReportFactory->make();
         }
 
@@ -58,10 +60,6 @@ final class AnalyzeContractService
         );
 
         $rawPayload = $this->llmClient->generateStructured($prompt);
-
-        if (!is_array($rawPayload)) {
-            throw new AccessDeniedHttpException('Model returned invalid analysis payload.');
-        }
 
         $normalizedPayload = $this->payloadNormalizer->normalize($rawPayload);
 

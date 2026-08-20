@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
-use Throwable;
 
 final class SubmitPaymentHashController extends AbstractController
 {
@@ -41,10 +41,15 @@ final class SubmitPaymentHashController extends AbstractController
                 'success' => true,
                 'status' => $payment->isPending() ? 'pending' : 'confirmed',
             ], Response::HTTP_OK);
-        } catch (Throwable $exception) {
+        } catch (HttpExceptionInterface $exception) {
             return $this->json([
                 'success' => false,
-                'message' => $exception->getMessage(),
+                'message' => Response::$statusTexts[$exception->getStatusCode()] ?? 'Payment verification failed.',
+            ], $exception->getStatusCode());
+        } catch (\Throwable) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Payment verification failed.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }

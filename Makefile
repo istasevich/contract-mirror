@@ -1,7 +1,12 @@
-.PHONY: dev prod down build logs
+.PHONY: setup dev prod down build logs test lint analyse ci
+
+setup:
+	cp -n .env.example .env || true
+	docker compose run --rm php composer install
+	docker compose run --rm php php bin/console doctrine:migrations:migrate --no-interaction
 
 dev:
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+	docker compose up -d --build
 
 prod:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
@@ -9,14 +14,20 @@ prod:
 down:
 	docker compose down
 
+build:
+	docker compose build
+
 logs:
 	docker compose logs -f
 
-deploy:
-	git pull
-	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+test:
+	composer test
 
-rebuild:
-	docker compose down
-	docker compose build --no-cache
-	docker compose up -d
+lint:
+	composer lint
+
+analyse:
+	composer analyse
+
+ci:
+	composer ci

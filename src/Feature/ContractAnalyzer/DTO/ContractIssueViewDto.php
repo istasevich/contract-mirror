@@ -11,13 +11,10 @@ final readonly class ContractIssueViewDto
         public string $severity,
         public string $category,
         public string $originalClause,
-
         public string $plainExplanation,
         public string $whyItMatters,
-
         public string $impact,
         public string $riskExplanation,
-
         public string $suggestedRewrite,
     ) {
         // Nothing

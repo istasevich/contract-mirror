@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Feature\ContractAnalyzer\DTO;
 
 final readonly class ContractAnalysisReportViewDto

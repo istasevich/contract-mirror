@@ -5,21 +5,26 @@ services:
             dockerfile: Dockerfile
         container_name: contractmirror_php
         working_dir: /var/www/html
-        env_file:
-            -   .env.prod
         environment:
-            APP_ENV: prod
+            APP_ENV: ${APP_ENV:-dev}
             APP_SECRET: ${APP_SECRET}
             OPENAI_API_KEY: ${OPENAI_API_KEY}
             OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
             DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=16&charset=utf8
+            REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
             CRYPTO_WALLET_ADDRESS: ${CRYPTO_WALLET_ADDRESS}
             USDT_TRON_CONTRACT_ADDRESS: ${USDT_TRON_CONTRACT_ADDRESS}
+            TRON_MIN_CONFIRMATIONS: ${TRON_MIN_CONFIRMATIONS:-1}
+            CONTRACT_MIRROR_FAKE_REPORT: ${CONTRACT_MIRROR_FAKE_REPORT:-false}
+            GUMROAD_SELLER_ID: ${GUMROAD_SELLER_ID:-}
+            GUMROAD_ACCESS_TOKEN: ${GUMROAD_ACCESS_TOKEN:-}
         volumes:
             - ./:/var/www/html
             - ./var:/var/www/html/var
         depends_on:
             database:
+                condition: service_healthy
+            redis:
                 condition: service_healthy
 
     nginx:
@@ -62,6 +67,11 @@ services:
             - ${REDIS_PASSWORD}
         expose:
             - "6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+            timeout: 5s
+            retries: 5
+            start_period: 10s
         volumes:
             - redis_data:/data
         restart: unless-stopped

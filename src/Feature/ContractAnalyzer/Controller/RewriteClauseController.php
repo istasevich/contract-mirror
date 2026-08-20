@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feature\ContractAnalyzer\Controller;
 
 use App\Feature\ContractAnalyzer\Application\RewriteClauseService;
+use App\Shared\Exception\ExternalServiceException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,10 +49,15 @@ final class RewriteClauseController extends AbstractController
                 'rewrite' => $result['rewrite'],
                 'reasoning' => $result['reasoning'],
             ]);
-        } catch (Throwable $exception) {
+        } catch (ExternalServiceException) {
             return $this->json([
                 'success' => false,
-                'message' => $exception->getMessage(),
+                'message' => 'Clause rewrite is temporarily unavailable.',
+            ], Response::HTTP_BAD_GATEWAY);
+        } catch (Throwable) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Unable to rewrite the clause.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }

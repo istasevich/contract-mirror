@@ -13,11 +13,9 @@ final readonly class AnalyzeContractRequest
     public function __construct(
         #[Assert\NotNull]
         public ?UploadedFile $file,
-
         #[Assert\NotBlank]
         #[Assert\Length(max: 16)]
         public string $preferredLanguage = 'English',
-
         public bool $isFreeAllowed = false,
     ) {
         // Nothing

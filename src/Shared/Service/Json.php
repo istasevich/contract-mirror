@@ -1,8 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Shared\Service;
-
-use JsonException;
 
 final class Json
 {
@@ -17,6 +17,9 @@ final class Json
         return $decoded;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public static function encode(array $payload): string
     {
         return json_encode($payload, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

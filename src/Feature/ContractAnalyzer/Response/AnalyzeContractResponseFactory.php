@@ -40,8 +40,7 @@ final class AnalyzeContractResponseFactory
 
             'missingProtections' => array_map(static fn ($item) => [
                 'title' => $item->title,
-                'category' => $item->category ?? null,
-                'whyItMatters' => $item->whyItMatters,
+                'explanation' => $item->explanation,
                 'suggestedClause' => $item->suggestedClause,
             ], $report->missingProtections),
 

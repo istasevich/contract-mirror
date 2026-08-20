@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: test
+      APP_SECRET: test-secret
+      OPENAI_API_KEY: test-openai-key
+      OPENAI_MODEL: gpt-4.1-mini
+      CONTRACT_MIRROR_FAKE_REPORT: "false"
+      POSTGRES_DB: contractmirror_test
+      POSTGRES_USER: contractmirror
+      POSTGRES_PASSWORD: contractmirror
+      DATABASE_URL: postgresql://contractmirror:contractmirror@127.0.0.1:5432/contractmirror_test?serverVersion=16&charset=utf8
+      REDIS_PASSWORD: contractmirror
+      REDIS_URL: redis://:contractmirror@127.0.0.1:6379
+      CRYPTO_WALLET_ADDRESS: TTestWalletAddress
+      USDT_TRON_CONTRACT_ADDRESS: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+      TRON_MIN_CONFIRMATIONS: "1"
+      GUMROAD_SELLER_ID: seller-test
+      GUMROAD_ACCESS_TOKEN: token-test
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: contractmirror_test
+          POSTGRES_USER: contractmirror
+          POSTGRES_PASSWORD: contractmirror
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -d contractmirror_test -U contractmirror"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: ctype, iconv, intl, zip, pdo_pgsql, redis
+          coverage: none
+          tools: composer:v2
+
+      - run: composer validate --strict
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - run: find src tests migrations config public -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - run: composer lint
+
+      - run: php bin/console cache:warmup --env=dev
+
+      - run: composer analyse
+
+      - run: composer test
+
+      - run: php bin/console lint:container
+
+      - run: php bin/console doctrine:migrations:sync-metadata-storage --no-interaction
+
+      - run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - run: docker compose config

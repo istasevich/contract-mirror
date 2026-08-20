@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Feature\Payment\Controller;
 
+use App\Feature\Payment\Webhook\WebhookVerifierInterface;
 use App\Repository\ContractReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +19,9 @@ final class GumroadWebhookController extends AbstractController
     public function __construct(
         protected ContractReportRepository $reportRepository,
         protected EntityManagerInterface $em,
+        private readonly WebhookVerifierInterface $webhookVerifier,
+        private readonly CacheItemPoolInterface $cache,
+        private readonly LoggerInterface $logger,
     ) {
         // Nothing
     }
@@ -24,43 +30,53 @@ final class GumroadWebhookController extends AbstractController
     public function __invoke(Request $request): Response
     {
         $data = $request->request->all();
+        $verification = $this->webhookVerifier->verify($data);
 
-        file_put_contents(
-            $this->getParameter('kernel.project_dir') . '/var/log/gumroad.log',
-            json_encode($data, JSON_UNESCAPED_UNICODE) . PHP_EOL,
-            FILE_APPEND
-        );
+        if (!$verification->isValid || $verification->publicId === null) {
+            $this->logger->warning('Gumroad webhook rejected.', [
+                'reason' => $verification->reason,
+            ]);
 
-        $params = $data['url_params'] ?? [];
-
-        $publicId = $params['custom'] ?? null;
-        //$visitorId = $data['custom_visitor'] ?? null;
-
-        if (!$publicId) {
-            return new Response('No publicId', 200);
+            return new Response('Invalid webhook', Response::HTTP_FORBIDDEN);
         }
 
-        $expectedSellerId = 'W8RPbbVj0hvA2SD6bckxdg==';
-
-        if (($data['seller_id'] ?? null) !== $expectedSellerId) {
-            return new Response('Invalid seller', 403);
+        if ($verification->providerEventId !== null && $this->isDuplicate($verification->providerEventId)) {
+            return new Response('OK', Response::HTTP_OK);
         }
 
-        $report = $this->reportRepository->findOneByPublicId($publicId);
+        $report = $this->reportRepository->findOneByPublicId($verification->publicId);
 
-        if (!$report) {
-            return new Response('Report not found', 200);
+        if ($report === null) {
+            $this->logger->notice('Gumroad webhook referenced an unknown report.', [
+                'public_id_hash' => hash('sha256', $verification->publicId),
+            ]);
+
+            return new Response('OK', Response::HTTP_OK);
         }
-
 
         if (!$report->isLocked()) {
-            return new Response('Already unlocked', 200);
+            return new Response('OK', Response::HTTP_OK);
         }
 
         $report->unlock();
 
         $this->em->flush();
 
-        return new Response('OK', 200);
+        return new Response('OK', Response::HTTP_OK);
+    }
+
+    private function isDuplicate(string $providerEventId): bool
+    {
+        $item = $this->cache->getItem('gumroad_webhook_' . hash('sha256', $providerEventId));
+
+        if ($item->isHit()) {
+            return true;
+        }
+
+        $item->set(true);
+        $item->expiresAfter(31 * 86400);
+        $this->cache->save($item);
+
+        return false;
     }
 }

@@ -8,6 +8,9 @@ use App\Entity\ReportPayment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ReportPayment>
+ */
 final class ReportPaymentRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

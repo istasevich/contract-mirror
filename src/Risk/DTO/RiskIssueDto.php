@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Risk\DTO;
 
@@ -11,7 +13,6 @@ final readonly class RiskIssueDto
         public RiskSeverityEnum $severity,
         public string $category,
         public ?string $clauseExcerpt,
-
         public string $plainExplanation,
         public string $whyItMatters,
         public string $impact,
@@ -30,11 +31,9 @@ final readonly class RiskIssueDto
             title: (string) ($payload['title'] ?? ''),
             severity: RiskSeverityEnum::from(strtoupper((string) ($payload['severity'] ?? 'LOW'))),
             category: (string) ($payload['category'] ?? 'other'),
-
             clauseExcerpt: isset($payload['original_clause'])
                 ? (string) $payload['original_clause']
                 : null,
-
             plainExplanation: (string) ($payload['plain_explanation'] ?? ''),
             whyItMatters: (string) ($payload['why_it_matters'] ?? ''),
             impact: (string) ($payload['impact'] ?? ''),

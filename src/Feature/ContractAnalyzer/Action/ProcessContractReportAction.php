@@ -32,7 +32,7 @@ final class ProcessContractReportAction
      * @throws RuntimeError
      * @throws LoaderError
      */
-    public function execute(AnalyzeContractRequest $request, bool $isAllowed = false): ProcessContractReportResultDto
+    public function execute(AnalyzeContractRequest $request): ProcessContractReportResultDto
     {
         $reportView = $this->analyzeContractService->handle($request);
 
@@ -42,9 +42,7 @@ final class ProcessContractReportAction
             language: $request->preferredLanguage,
         );
 
-        if ($isAllowed) {
-            $storedReport->unlock();
-        }
+        $storedReport->unlock();
 
         $payment = $this->createReportPaymentService->handle($storedReport);
 

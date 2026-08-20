@@ -7,7 +7,6 @@ namespace App\Feature\ContractAnalyzer\Service;
 use App\Entity\ContractReport;
 use App\Shared\Exception\ReportLockedException;
 use Spatie\Browsershot\Browsershot;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Twig\Environment;
 
 final class GenerateContractReportPdfService

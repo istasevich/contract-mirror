@@ -45,6 +45,9 @@ class ReportPayment
     #[ORM\Column(length: 20)]
     protected string $status = 'pending';
 
+    /**
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     protected ?array $rawVerificationPayload = null;
 
@@ -121,6 +124,9 @@ class ReportPayment
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * @param array<string, mixed> $rawVerificationPayload
+     */
     public function markConfirmed(array $rawVerificationPayload, ?string $payerAddress = null): void
     {
         $this->status = 'confirmed';
@@ -130,6 +136,9 @@ class ReportPayment
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * @param array<string, mixed> $rawVerificationPayload
+     */
     public function markRejected(array $rawVerificationPayload = []): void
     {
         $this->status = 'rejected';

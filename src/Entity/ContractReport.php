@@ -41,6 +41,9 @@ class ContractReport
     #[ORM\Column(length: 16)]
     protected string $status = 'pending';
 
+    /**
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     protected ?array $reportPayload = null;
 
@@ -108,6 +111,9 @@ class ContractReport
         return $this->overallRisk;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getReportPayload(): ?array
     {
         return $this->reportPayload;
@@ -128,6 +134,9 @@ class ContractReport
         return $this->status;
     }
 
+    /**
+     * @param array<string, mixed> $reportPayload
+     */
     public function markReady(
         int $riskScore,
         string $overallRisk,

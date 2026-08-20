@@ -10,6 +10,9 @@ use App\Feature\ContractAnalyzer\DTO\MissingProtectionViewDto;
 
 final class ContractAnalysisViewMapper
 {
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function map(
         array $payload,
         string $documentName,
@@ -22,13 +25,10 @@ final class ContractAnalysisViewMapper
                 severity: strtoupper((string) ($issue['severity'] ?? 'MEDIUM')),
                 category: (string) ($issue['category'] ?? 'General'),
                 originalClause: (string) ($issue['original_clause'] ?? ''),
-
                 plainExplanation: (string) ($issue['plain_explanation'] ?? ''),
                 whyItMatters: (string) ($issue['why_it_matters'] ?? ''),
-
                 impact: (string) ($issue['impact'] ?? ''),
                 riskExplanation: (string) ($issue['risk_level_explanation'] ?? ''),
-
                 suggestedRewrite: (string) ($issue['suggested_rewrite'] ?? ''),
             ),
             array_values($payload['issues'] ?? [])
@@ -48,16 +48,12 @@ final class ContractAnalysisViewMapper
             documentName: $documentName,
             documentType: $documentType,
             language: $language,
-
             riskScore: (int) ($payload['risk_score'] ?? 0),
             overallRisk: strtoupper((string) ($payload['overall_risk'] ?? 'MEDIUM')),
-
             riskSummary: (string) ($payload['risk_summary'] ?? ''),
-
             executiveSummary: (string) ($payload['executive_summary'] ?? ''),
             finalRecommendation: (string) ($payload['final_recommendation'] ?? ''),
             signingRecommendation: (string) ($payload['signing_recommendation'] ?? ''),
-
             issues: $issues,
             missingProtections: $missingProtections,
         );

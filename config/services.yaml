@@ -1,7 +1,11 @@
 parameters:
   openai.model: '%env(default:OPENAI_MODEL:OPENAI_MODEL)%'
+  app.fake_report_enabled: '%env(bool:CONTRACT_MIRROR_FAKE_REPORT)%'
   app.crypto.wallet_address: '%env(CRYPTO_WALLET_ADDRESS)%'
   app.crypto.usdt_tron_contract: '%env(USDT_TRON_CONTRACT_ADDRESS)%'
+  app.tron.min_confirmations: '%env(int:TRON_MIN_CONFIRMATIONS)%'
+  app.gumroad.seller_id: '%env(default::GUMROAD_SELLER_ID)%'
+  app.gumroad.access_token: '%env(default::GUMROAD_ACCESS_TOKEN)%'
 
 services:
   _defaults:
@@ -25,10 +29,16 @@ services:
     arguments:
         $walletAddress: '%app.crypto.wallet_address%'
         $usdtContractAddress: '%app.crypto.usdt_tron_contract%'
+        $minConfirmations: '%app.tron.min_confirmations%'
 
   App\Feature\ContractAnalyzer\Service\IpUsageLimiter:
       arguments:
           $cache: '@cache.app'
+
+  App\Feature\ContractAnalyzer\Service\AnalyzeContractService:
+    arguments:
+      $fakeReportEnabled: '%app.fake_report_enabled%'
+      $environment: '%kernel.environment%'
 
   monolog.logger.openai:
       class: Psr\Log\LoggerInterface
@@ -48,6 +58,13 @@ services:
       $apiKey: '%env(string:OPENAI_API_KEY)%'
       $model: '%env(string:OPENAI_MODEL)%'
       $logger: '@monolog.logger.openai'
+
+  App\Feature\Payment\Webhook\GumroadApiWebhookVerifier:
+    arguments:
+      $sellerId: '%app.gumroad.seller_id%'
+      $accessToken: '%app.gumroad.access_token%'
+
+  App\Feature\Payment\Webhook\WebhookVerifierInterface: '@App\Feature\Payment\Webhook\GumroadApiWebhookVerifier'
 
   App\Document\Parser\PdfTextExtractor: ~
   App\Document\Parser\DocxTextExtractor: ~

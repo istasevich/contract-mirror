@@ -8,6 +8,9 @@ use App\Entity\ContractReport;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ContractReport>
+ */
 final class ContractReportRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

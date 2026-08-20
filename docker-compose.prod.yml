@@ -1,13 +1,9 @@
-version: '3.9'
-
 services:
     php:
         build:
             context: .
             dockerfile: Dockerfile
         working_dir: /var/www/html
-        env_file:
-            - .env.prod
         environment:
             APP_ENV: prod
             APP_SECRET: ${APP_SECRET}
@@ -16,7 +12,11 @@ services:
             DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=16&charset=utf8
             CRYPTO_WALLET_ADDRESS: ${CRYPTO_WALLET_ADDRESS}
             USDT_TRON_CONTRACT_ADDRESS: ${USDT_TRON_CONTRACT_ADDRESS}
-            REDIS_URL: redis://redis:6379
+            TRON_MIN_CONFIRMATIONS: ${TRON_MIN_CONFIRMATIONS:-1}
+            CONTRACT_MIRROR_FAKE_REPORT: "false"
+            GUMROAD_SELLER_ID: ${GUMROAD_SELLER_ID}
+            GUMROAD_ACCESS_TOKEN: ${GUMROAD_ACCESS_TOKEN}
+            REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
         volumes:
             - ./:/var/www/html
             - ./var:/var/www/html/var
@@ -24,7 +24,7 @@ services:
             database:
                 condition: service_healthy
             redis:
-                condition: service_started
+                condition: service_healthy
         restart: unless-stopped
 
     nginx:
@@ -69,6 +69,11 @@ services:
             - ${REDIS_PASSWORD}
         expose:
             - "6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+            timeout: 5s
+            retries: 5
+            start_period: 10s
         volumes:
             - redis_data:/data
         restart: unless-stopped

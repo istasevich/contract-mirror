@@ -6,6 +6,10 @@ namespace App\Feature\ContractAnalyzer\Support;
 
 final class ContractAnalysisPayloadNormalizer
 {
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
     public function normalize(array $payload): array
     {
         $riskScore = (float) ($payload['risk_score'] ?? 0);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Feature\ContractAnalyzer\Application;
 
-
 use App\Feature\ContractAnalyzer\Prompt\RewriteClausePromptFactory;
 use App\Shared\AI\LlmClientInterface;
 

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Feature\Payment\Controller;
 
-use App\Repository\ReportPaymentRepository;
 use App\Feature\Payment\Service\VerifyTronPaymentService;
+use App\Repository\ReportPaymentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Throwable;
 
 final class PaymentStatusController extends AbstractController
 {
@@ -44,10 +44,15 @@ final class PaymentStatusController extends AbstractController
                 'status' => $payment?->getStatus() ?? 'pending',
                 'reportUnlocked' => $payment?->getReport()->isLocked() === false,
             ], Response::HTTP_OK);
-        } catch (Throwable $exception) {
+        } catch (HttpExceptionInterface $exception) {
             return $this->json([
                 'success' => false,
-                'message' => $exception->getMessage(),
+                'message' => Response::$statusTexts[$exception->getStatusCode()] ?? 'Payment status check failed.',
+            ], $exception->getStatusCode());
+        } catch (\Throwable) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Payment status check failed.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }

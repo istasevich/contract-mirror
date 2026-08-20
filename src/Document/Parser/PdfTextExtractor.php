@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Document\Parser;
 
@@ -54,7 +56,7 @@ final class PdfTextExtractor implements DocumentTextExtractorInterface
 
         preg_match_all('/\(([^()]*)\)/s', $content, $matches);
 
-        if (!isset($matches[1]) || !is_array($matches[1])) {
+        if ($matches[1] === []) {
             return '';
         }
 

@@ -15,6 +15,9 @@ final class FinalizeContractReportService
         // Nothing
     }
 
+    /**
+     * @param array<string, mixed> $reportPayload
+     */
     public function handle(
         ContractReport $report,
         int $riskScore,
